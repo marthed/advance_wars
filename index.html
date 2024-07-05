@@ -1,0 +1,184 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div id="map" class="grid-container">
+      <!-- Example grid items -->
+      <!-- <div class="grid-item"></div>
+      <div class="grid-item"></div>
+      <div class="grid-item"></div> -->
+      <!-- Add more items as needed -->
+  </div>
+
+    <script>
+      const htmlMap = document.getElementById("map");
+
+      const size = 20 * 40;
+
+      for (let i = 0; i < size; i++) {
+        const element = document.createElement("div");
+        element.setAttribute("class", "grid-item");
+        element.id = "tile-" + i;
+
+        if (i < size / 2) {
+
+          if (Math.random() < 0.2) {
+            element.setAttribute("class", "terrain-forest");
+          }
+          else {
+            element.setAttribute("class", "terrain-grass");
+            // const img = document.createElement("img");
+            // img.src = "grass.jpeg";
+            // img.style.height = "40px";
+            // element.appendChild(img);
+          }
+        }
+        else {
+          element.setAttribute("class", "terrain-water"); 
+        }
+        
+        htmlMap.appendChild(element);
+      }
+    </script>
+    <script>
+      class TileData {
+        terrainColor = "";
+        element = null;
+
+        constructor(t, e) {
+          this.terrainColor = t;
+          this.element = e;
+        }
+      }
+    </script>
+    <script>
+
+    </script>
+    <script>
+      let startingTile = document.getElementById("tile-20");
+
+      let path = [];
+
+      function AddImg(tile) {
+        const img = document.createElement("img");
+        img.src = "soldier.png";
+        img.style.height = "40px";
+        img.style.width = "40px";
+        img.setAttribute("class", "overlay-image");
+        return img;
+      }
+
+      const unitImage = AddImg(startingTile);
+      startingTile.appendChild(unitImage);
+
+
+      function AddTileData(elem) {
+          const terrain = window.getComputedStyle(elem, null).getPropertyValue("background-color");
+          const tileData = new TileData(terrain, elem);
+          return tileData;
+        }
+
+      
+
+      const SelectUnit = (event) => {
+
+        const { target } = event;
+
+        startingTile.removeEventListener("mousedown", SelectUnit);
+
+        const tileData = AddTileData(startingTile);
+        path.push(tileData);
+
+        startingTile.style.backgroundColor = "purple";
+        
+        let currentTile;
+        
+        const EventListener = (event) => {
+
+          const { key } = event;
+          event.preventDefault();
+          event.stopPropagation();
+
+          const startTile = Number(currentTile || (startingTile.id.split("-")[1])); 
+
+          if (key === "ArrowUp") {
+            const nextTile = startTile - 40;
+            const elem = document.getElementById(`tile-${nextTile}`);
+            if (elem) {
+              console.log("up")
+              currentTile = Number(elem.id.split("-")[1]);
+              const tileData = AddTileData(elem);
+              path.push(tileData)
+              elem.style.backgroundColor = "purple";
+            }
+          }
+          else if (key === "ArrowDown") {
+            const nextTile = startTile + 40;
+            const elem = document.getElementById(`tile-${nextTile}`);
+            if (elem) {
+              console.log("down")
+              currentTile = Number(elem.id.split("-")[1]);
+              const tileData = AddTileData(elem);
+              path.push(tileData)
+              elem.style.backgroundColor = "purple";
+            }
+          }
+          else if (key === "ArrowRight") {
+            const nextTile = startTile + 1;
+            const elem = document.getElementById(`tile-${nextTile}`);
+            if (elem) {
+              console.log("right")
+              currentTile = Number(elem.id.split("-")[1]);
+              const tileData = AddTileData(elem);
+              path.push(tileData)
+              elem.style.backgroundColor = "purple";
+            }
+          }
+          else if (key === "ArrowLeft") {
+            const nextTile = startTile - 1;
+            const elem = document.getElementById(`tile-${nextTile}`);
+            if (elem) {
+              console.log("left");
+              currentTile = Number(elem.id.split("-")[1]);
+              const tileData = AddTileData(elem);
+              path.push(tileData);
+              elem.style.backgroundColor = "purple";
+            }
+          }
+          else if (key === "Enter") {
+            document.removeEventListener("keydown", EventListener);
+            startingTile.removeChild(unitImage);
+            path.forEach(tile => {
+              tile.element.style.backgroundColor = tile.terrainColor;
+            });
+            path = [];
+            const elem = document.getElementById(`tile-${currentTile}`);
+            elem.appendChild(unitImage);
+            elem.addEventListener("mousedown", SelectUnit);
+            startingTile = elem;
+            currentTile = null;
+            
+          }
+          else if (key === "Escape") {
+            document.removeEventListener("keydown", EventListener);
+            startingTile.addEventListener("mousedown", SelectUnit);
+
+            path.forEach(tile => {
+              tile.element.style.backgroundColor = tile.terrainColor;
+            });
+          
+          path = []; 
+          const elem = document.getElementById(`tile-${currentTile}`);
+          currentTile = null;
+          }
+        }       
+
+        document.addEventListener("keydown", EventListener); 
+      }
+
+      startingTile.addEventListener("mousedown", SelectUnit);      
+
+    </script>
+  </body>
+</html>

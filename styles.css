@@ -1,0 +1,47 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(40, 40px); /* 40 columns */
+  grid-template-rows: repeat(20, 40px);   /* 60 rows */
+  gap: 1px;
+  width: 80vw; /* Adjust the container width as needed */
+  height: 90vh; /* Adjust the container height as needed */
+}
+
+.grid-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ccc;
+  border: 1px solid black;/* Optional: add border to see the grid items clearly */
+  font-size: 12px; /* Adjust the font size as needed */
+  height: 40px;
+  width: 40px;
+}
+
+.terrain-grass {
+  background-color: lightgreen;
+  
+}
+
+.terrain-water {
+  background-color: blue;
+  
+}
+
+.terrain-forest {
+  background-color: darkgreen;
+  
+}
+
+.overlay-image {
+  z-index: 1;
+}
