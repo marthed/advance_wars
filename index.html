@@ -43,12 +43,16 @@
     </script>
     <script>
       class TileData {
+        id = "";
         terrainColor = "";
         element = null;
+        command = "";
 
-        constructor(t, e) {
+        constructor(id, t, e, c) {
+          this.id = id;
           this.terrainColor = t;
           this.element = e;
+          this.command = c;
         }
       }
     </script>
@@ -73,9 +77,10 @@
       startingTile.appendChild(unitImage);
 
 
-      function AddTileData(elem) {
+      function AddTileData(elem, command) {
+          const id = elem.id.split("-")[1];
           const terrain = window.getComputedStyle(elem, null).getPropertyValue("background-color");
-          const tileData = new TileData(terrain, elem);
+          const tileData = new TileData(id, terrain, elem, command);
           return tileData;
         }
 
@@ -87,7 +92,7 @@
 
         startingTile.removeEventListener("mousedown", SelectUnit);
 
-        const tileData = AddTileData(startingTile);
+        const tileData = AddTileData(startingTile, "start");
         path.push(tileData);
 
         startingTile.style.backgroundColor = "purple";
@@ -106,44 +111,78 @@
             const nextTile = startTile - 40;
             const elem = document.getElementById(`tile-${nextTile}`);
             if (elem) {
-              console.log("up")
-              currentTile = Number(elem.id.split("-")[1]);
-              const tileData = AddTileData(elem);
-              path.push(tileData)
-              elem.style.backgroundColor = "purple";
+
+              const lastTile = path[path.length -1];
+              if (lastTile.command === "ArrowDown") {
+                document.getElementById(`tile-${lastTile.id}`).style.backgroundColor = lastTile.terrainColor;
+                path.pop();
+                currentTile = Number(elem.id.split("-")[1]);
+              }
+              else {
+                currentTile = Number(elem.id.split("-")[1]);
+                const tileData = AddTileData(elem, "ArrowUp");
+                path.push(tileData)
+                elem.style.backgroundColor = "purple";
+              }
+              
             }
           }
           else if (key === "ArrowDown") {
             const nextTile = startTile + 40;
             const elem = document.getElementById(`tile-${nextTile}`);
             if (elem) {
-              console.log("down")
-              currentTile = Number(elem.id.split("-")[1]);
-              const tileData = AddTileData(elem);
-              path.push(tileData)
-              elem.style.backgroundColor = "purple";
+
+              const lastTile = path[path.length -1];
+              if (lastTile.command === "ArrowUp") {
+                document.getElementById(`tile-${lastTile.id}`).style.backgroundColor = lastTile.terrainColor;
+                path.pop();
+                currentTile = Number(elem.id.split("-")[1]);
+              }
+              else {
+                currentTile = Number(elem.id.split("-")[1]);
+                const tileData = AddTileData(elem, "ArrowDown");
+                path.push(tileData)
+                elem.style.backgroundColor = "purple";
+              }
+              
             }
           }
           else if (key === "ArrowRight") {
             const nextTile = startTile + 1;
             const elem = document.getElementById(`tile-${nextTile}`);
             if (elem) {
-              console.log("right")
-              currentTile = Number(elem.id.split("-")[1]);
-              const tileData = AddTileData(elem);
-              path.push(tileData)
-              elem.style.backgroundColor = "purple";
+              const lastTile = path[path.length -1];
+              if (lastTile.command === "ArrowLeft") {
+                document.getElementById(`tile-${lastTile.id}`).style.backgroundColor = lastTile.terrainColor;
+                path.pop();
+                currentTile = Number(elem.id.split("-")[1]);
+              }
+              else {
+                currentTile = Number(elem.id.split("-")[1]);
+                const tileData = AddTileData(elem, "ArrowRight");
+                path.push(tileData)
+                elem.style.backgroundColor = "purple";
+              }
+              
             }
           }
           else if (key === "ArrowLeft") {
             const nextTile = startTile - 1;
             const elem = document.getElementById(`tile-${nextTile}`);
             if (elem) {
-              console.log("left");
-              currentTile = Number(elem.id.split("-")[1]);
-              const tileData = AddTileData(elem);
-              path.push(tileData);
-              elem.style.backgroundColor = "purple";
+
+              const lastTile = path[path.length -1];
+              if (lastTile.command === "ArrowRight") {
+                document.getElementById(`tile-${lastTile.id}`).style.backgroundColor = lastTile.terrainColor;
+                path.pop();
+                currentTile = Number(elem.id.split("-")[1]);
+              }
+              else {
+                currentTile = Number(elem.id.split("-")[1]);
+                const tileData = AddTileData(elem, "ArrowLeft");
+                path.push(tileData);
+                elem.style.backgroundColor = "purple";
+              }
             }
           }
           else if (key === "Enter") {
