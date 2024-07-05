@@ -120,9 +120,18 @@
               }
               else {
                 currentTile = Number(elem.id.split("-")[1]);
-                const tileData = AddTileData(elem, "ArrowUp");
-                path.push(tileData)
-                elem.style.backgroundColor = "purple";
+
+                const exists = path.find(tileData => Number(tileData.id) === currentTile);
+
+                if (exists) {
+                  console.log("No path crossing!");
+                  currentTile = Number(lastTile.id);
+                }
+                else {
+                  const tileData = AddTileData(elem, "ArrowUp");
+                  path.push(tileData)
+                  elem.style.backgroundColor = "purple";
+                }
               }
               
             }
@@ -140,9 +149,20 @@
               }
               else {
                 currentTile = Number(elem.id.split("-")[1]);
+
+                const exists = path.find(tileData => Number(tileData.id) === currentTile);
+
+                if (exists) {
+                  console.log("No path crossing!");
+                  currentTile = Number(lastTile.id);
+                }
+                else {
+
                 const tileData = AddTileData(elem, "ArrowDown");
                 path.push(tileData)
                 elem.style.backgroundColor = "purple";
+
+                }
               }
               
             }
@@ -159,9 +179,17 @@
               }
               else {
                 currentTile = Number(elem.id.split("-")[1]);
+                const exists = path.find(tileData => Number(tileData.id) === currentTile);
+
+                if (exists) {
+                  console.log("No path crossing!");
+                  currentTile = Number(lastTile.id);
+                }
+                else {
                 const tileData = AddTileData(elem, "ArrowRight");
                 path.push(tileData)
                 elem.style.backgroundColor = "purple";
+                }
               }
               
             }
@@ -179,9 +207,17 @@
               }
               else {
                 currentTile = Number(elem.id.split("-")[1]);
-                const tileData = AddTileData(elem, "ArrowLeft");
-                path.push(tileData);
-                elem.style.backgroundColor = "purple";
+                const exists = path.find(tileData => Number(tileData.id) === currentTile);
+
+                if (exists) {
+                  console.log("No path crossing!");
+                  currentTile = Number(lastTile.id);
+                }
+                else {
+                  const tileData = AddTileData(elem, "ArrowLeft");
+                  path.push(tileData);
+                  elem.style.backgroundColor = "purple";
+                }
               }
             }
           }
