@@ -1,6 +1,6 @@
 <html>
   <head>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div id="map" class="grid-container">
@@ -9,47 +9,43 @@
       <div class="grid-item"></div>
       <div class="grid-item"></div> -->
       <!-- Add more items as needed -->
-  </div>
+    </div>
 
     <script>
-      const htmlMap = document.getElementById("map");
+      const htmlMap = document.getElementById('map');
 
       const size = 20 * 40;
 
       for (let i = 0; i < size; i++) {
-        const element = document.createElement("div");
-        element.setAttribute("class", "grid-item");
-        element.id = "tile-" + i;
+        const element = document.createElement('div');
+        element.setAttribute('class', 'grid-item');
+        element.id = 'tile-' + i;
 
         if (i < size / 2) {
-
           if (Math.random() < 0.2) {
-            element.setAttribute("class", "terrain-forest");
-          }
-          else {
-            element.setAttribute("class", "terrain-grass");
+            element.setAttribute('class', 'terrain-forest');
+          } else {
+            element.setAttribute('class', 'terrain-grass');
             // const img = document.createElement("img");
             // img.src = "grass.jpeg";
             // img.style.height = "40px";
             // element.appendChild(img);
           }
+        } else {
+          element.setAttribute('class', 'terrain-water');
         }
-        else {
-          element.setAttribute("class", "terrain-water"); 
-        }
-        
+
         htmlMap.appendChild(element);
       }
     </script>
 
-    
     <script>
       /* Classes */
       class TileData {
-        id = "";
-        terrainColor = "";
+        id = '';
+        terrainColor = '';
         element = null;
-        command = "";
+        command = '';
 
         constructor(id, t, e, c) {
           this.id = id;
@@ -60,10 +56,10 @@
       }
 
       class Unit {
-        id = "";
-        type = "";
+        id = '';
+        type = '';
         movementRange = 0;
-        canMoveInTerrain = ["field", "woods", "mountain", "water"];
+        canMoveInTerrain = ['field', 'woods', 'mountain', 'water'];
 
         constructor(type) {
           this.id = GenerateId();
@@ -73,243 +69,273 @@
           this.movementRange = movementRange;
         }
       }
-
     </script>
 
     <script>
       /* Functions */
 
-    function GenerateId() {
+      function GenerateId() {
         return 'id-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
-    }
-
-    function GetUnitLogic(type = "")  {
-      if (type === "infantry") {
-        return { movementRange: 3, canMoveInTerrain: ["field", "woods", "mountain"]}
       }
-      if (type === "tank") {
-        return { movementRange: 6, canMoveInTerrain: ["field", "woods"]}
+
+      function GetUnitLogic(type = '') {
+        if (type === 'infantry') {
+          return {
+            movementRange: 3,
+            canMoveInTerrain: ['field', 'woods', 'mountain'],
+          };
+        }
+        if (type === 'tank') {
+          return { movementRange: 6, canMoveInTerrain: ['field', 'woods'] };
+        }
+        return { movementRange: 0, canMoveInTerrain: [] };
       }
-      return { movementRange: 0, canMoveInTerrain: []}
-    }
 
-    function AddImg(tile, type) {
-            const img = document.createElement("img");
+      function AddImg(tile, type) {
+        const img = document.createElement('img');
 
-            if (type === "infantry") {
-              img.src = "units/infantry.png";
-            }
-            else if (type === "tank") {
-              img.src = "units/tank.png";
-            }
-            img.style.pointerEvents = "none";
-            img.style.height = "40px";
-            img.style.width = "40px";
-            img.setAttribute("class", "overlay-image");
-            return img;
-          }
-      
+        if (type === 'infantry') {
+          img.src = 'units/infantry.png';
+        } else if (type === 'tank') {
+          img.src = 'units/tank.png';
+        }
+        img.style.pointerEvents = 'none';
+        img.style.height = '40px';
+        img.style.width = '40px';
+        img.setAttribute('class', 'overlay-image');
+        return img;
+      }
+
       function AddTileData(elem, command) {
-          const id = elem.id.split("-")[1];
-          const terrain = window.getComputedStyle(elem, null).getPropertyValue("background-color");
-          const tileData = new TileData(id, terrain, elem, command);
-          return tileData;
-        }
+        const id = elem.id.split('-')[1];
+        const terrain = window
+          .getComputedStyle(elem, null)
+          .getPropertyValue('background-color');
+        const tileData = new TileData(id, terrain, elem, command);
+        return tileData;
+      }
 
-        function generateRandomId() {
-          return 'id-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
-        }
+      function CheckIfOtherUnitOccupiesTile() {}
     </script>
-      <script>
-        /* Game Interactive Logic */
 
-        let path = [];
-    
-        const SelectUnit = (event) => {
-  
-          const { target } = event;
-          console.log(target);
-  
-          target.removeEventListener("mousedown", SelectUnit);
-  
-          const tileData = AddTileData(target, "start");
-          path.push(tileData);
-  
-          target.style.backgroundColor = "purple";
-          
-          let currentTile;
-          
-          const EventListener = (event) => {
-  
-            const { key } = event;
-            event.preventDefault();
-            event.stopPropagation();
-  
-            const startTile = Number(currentTile || (target.id.split("-")[1])); 
-  
-            if (key === "ArrowUp") {
-              const nextTile = startTile - 40;
-              const elem = document.getElementById(`tile-${nextTile}`);
-              if (elem) {
-  
-                const lastTile = path[path.length -1];
-                if (lastTile.command === "ArrowDown") {
-                  document.getElementById(`tile-${lastTile.id}`).style.backgroundColor = lastTile.terrainColor;
-                  path.pop();
-                  currentTile = Number(elem.id.split("-")[1]);
-                }
-                else {
-                  currentTile = Number(elem.id.split("-")[1]);
-  
-                  const exists = path.find(tileData => Number(tileData.id) === currentTile);
-  
-                  if (exists) {
-                    console.log("No path crossing!");
-                    currentTile = Number(lastTile.id);
-                  }
-                  else {
-                    const tileData = AddTileData(elem, "ArrowUp");
-                    path.push(tileData)
-                    elem.style.backgroundColor = "purple";
-                  }
-                }
-                
+    <script>
+      let GlobalState = {
+        path: [], // TileData for current unit path
+        currentTileId: null, // number
+        currentSelectedUnitTile: null, // element
+      };
+    </script>
+
+    <script>
+      const EventListener = (event) => {
+        const { key } = event;
+        const { currentTileId, path, currentSelectedUnitTile } = GlobalState;
+        event.preventDefault();
+        event.stopPropagation();
+
+        const startTile = Number(
+          currentTileId || GlobalState.currentSelectedUnitTile.id.split('-')[1]
+        );
+
+        if (key === 'ArrowUp') {
+          const nextTile = startTile - 40;
+          const elem = document.getElementById(`tile-${nextTile}`);
+          if (elem) {
+            const lastTile = path[path.length - 1];
+            if (lastTile.command === 'ArrowDown') {
+              document.getElementById(
+                `tile-${lastTile.id}`
+              ).style.backgroundColor = lastTile.terrainColor;
+              path.pop();
+              GlobalState.currentTileId = Number(elem.id.split('-')[1]);
+            } else {
+              GlobalState.currentTileId = Number(elem.id.split('-')[1]);
+
+              const exists = path.find(
+                (tileData) => Number(tileData.id) === GlobalState.currentTileId
+              );
+
+              const hasUnit = !!elem.querySelector('img');
+
+              if (exists || hasUnit) {
+                console.log('No path crossing!');
+                GlobalState.currentTileId = Number(lastTile.id);
+              } else {
+                const tileData = AddTileData(elem, 'ArrowUp');
+                GlobalState.path.push(tileData);
+                elem.style.backgroundColor = 'purple';
               }
             }
-            else if (key === "ArrowDown") {
-              const nextTile = startTile + 40;
-              const elem = document.getElementById(`tile-${nextTile}`);
-              if (elem) {
-  
-                const lastTile = path[path.length -1];
-                if (lastTile.command === "ArrowUp") {
-                  document.getElementById(`tile-${lastTile.id}`).style.backgroundColor = lastTile.terrainColor;
-                  path.pop();
-                  currentTile = Number(elem.id.split("-")[1]);
-                }
-                else {
-                  currentTile = Number(elem.id.split("-")[1]);
-  
-                  const exists = path.find(tileData => Number(tileData.id) === currentTile);
-  
-                  if (exists) {
-                    console.log("No path crossing!");
-                    currentTile = Number(lastTile.id);
-                  }
-                  else {
-  
-                  const tileData = AddTileData(elem, "ArrowDown");
-                  path.push(tileData)
-                  elem.style.backgroundColor = "purple";
-  
-                  }
-                }
-                
+          }
+        } else if (key === 'ArrowDown') {
+          const nextTile = startTile + 40;
+          const elem = document.getElementById(`tile-${nextTile}`);
+          if (elem) {
+            const lastTile = path[path.length - 1];
+            if (lastTile.command === 'ArrowUp') {
+              document.getElementById(
+                `tile-${lastTile.id}`
+              ).style.backgroundColor = lastTile.terrainColor;
+              path.pop();
+              GlobalState.currentTileId = Number(elem.id.split('-')[1]);
+            } else {
+              GlobalState.currentTileId = Number(elem.id.split('-')[1]);
+
+              const exists = path.find(
+                (tileData) => Number(tileData.id) === GlobalState.currentTileId
+              );
+
+              const hasUnit = !!elem.querySelector('img');
+
+              if (exists || hasUnit) {
+                console.log('No path crossing!');
+                GlobalState.currentTileId = Number(lastTile.id);
+              } else {
+                const tileData = AddTileData(elem, 'ArrowDown');
+                GlobalState.path.push(tileData);
+                elem.style.backgroundColor = 'purple';
               }
             }
-            else if (key === "ArrowRight") {
-              const nextTile = startTile + 1;
-              const elem = document.getElementById(`tile-${nextTile}`);
-              if (elem) {
-                const lastTile = path[path.length -1];
-                if (lastTile.command === "ArrowLeft") {
-                  document.getElementById(`tile-${lastTile.id}`).style.backgroundColor = lastTile.terrainColor;
-                  path.pop();
-                  currentTile = Number(elem.id.split("-")[1]);
-                }
-                else {
-                  currentTile = Number(elem.id.split("-")[1]);
-                  const exists = path.find(tileData => Number(tileData.id) === currentTile);
-  
-                  if (exists) {
-                    console.log("No path crossing!");
-                    currentTile = Number(lastTile.id);
-                  }
-                  else {
-                  const tileData = AddTileData(elem, "ArrowRight");
-                  path.push(tileData)
-                  elem.style.backgroundColor = "purple";
-                  }
-                }
-                
+          }
+        } else if (key === 'ArrowRight') {
+          const nextTile = startTile + 1;
+          const elem = document.getElementById(`tile-${nextTile}`);
+          if (elem) {
+            const lastTile = path[path.length - 1];
+            if (lastTile.command === 'ArrowLeft') {
+              document.getElementById(
+                `tile-${lastTile.id}`
+              ).style.backgroundColor = lastTile.terrainColor;
+              path.pop();
+              GlobalState.currentTileId = Number(elem.id.split('-')[1]);
+            } else {
+              GlobalState.currentTileId = Number(elem.id.split('-')[1]);
+              const exists = path.find(
+                (tileData) => Number(tileData.id) === GlobalState.currentTileId
+              );
+
+              const hasUnit = !!elem.querySelector('img');
+
+              if (exists || hasUnit) {
+                console.log('No path crossing!');
+                GlobalState.currentTileId = Number(lastTile.id);
+              } else {
+                const tileData = AddTileData(elem, 'ArrowRight');
+                GlobalState.path.push(tileData);
+                elem.style.backgroundColor = 'purple';
               }
             }
-            else if (key === "ArrowLeft") {
-              const nextTile = startTile - 1;
-              const elem = document.getElementById(`tile-${nextTile}`);
-              if (elem) {
-  
-                const lastTile = path[path.length -1];
-                if (lastTile.command === "ArrowRight") {
-                  document.getElementById(`tile-${lastTile.id}`).style.backgroundColor = lastTile.terrainColor;
-                  path.pop();
-                  currentTile = Number(elem.id.split("-")[1]);
-                }
-                else {
-                  currentTile = Number(elem.id.split("-")[1]);
-                  const exists = path.find(tileData => Number(tileData.id) === currentTile);
-  
-                  if (exists) {
-                    console.log("No path crossing!");
-                    currentTile = Number(lastTile.id);
-                  }
-                  else {
-                    const tileData = AddTileData(elem, "ArrowLeft");
-                    path.push(tileData);
-                    elem.style.backgroundColor = "purple";
-                  }
-                }
+          }
+        } else if (key === 'ArrowLeft') {
+          const nextTile = startTile - 1;
+          const elem = document.getElementById(`tile-${nextTile}`);
+          if (elem) {
+            const lastTile = path[path.length - 1];
+            if (lastTile.command === 'ArrowRight') {
+              document.getElementById(
+                `tile-${lastTile.id}`
+              ).style.backgroundColor = lastTile.terrainColor;
+              path.pop();
+              GlobalState.currentTileId = Number(elem.id.split('-')[1]);
+            } else {
+              GlobalState.currentTileId = Number(elem.id.split('-')[1]);
+              const exists = path.find(
+                (tileData) => Number(tileData.id) === GlobalState.currentTileId
+              );
+
+              const hasUnit = !!elem.querySelector('img');
+
+              if (exists || hasUnit) {
+                console.log('No path crossing!');
+                GlobalState.currentTileId = Number(lastTile.id);
+              } else {
+                const tileData = AddTileData(elem, 'ArrowLeft');
+                GlobalState.path.push(tileData);
+                elem.style.backgroundColor = 'purple';
               }
             }
-            else if (key === "Enter") {
-              document.removeEventListener("keydown", EventListener);
-              const image = target.querySelector("img");
-              target.removeChild(image);
-              path.forEach(tile => {
-                tile.element.style.backgroundColor = tile.terrainColor;
-              });
-              path = [];
-              const elem = document.getElementById(`tile-${currentTile}`);
-              elem.appendChild(image);
-              elem.addEventListener("mousedown", SelectUnit);
-              //target = elem;
-              currentTile = null;
-              
-            }
-            else if (key === "Escape") {
-              document.removeEventListener("keydown", EventListener);
-              target.addEventListener("mousedown", SelectUnit);
-  
-              path.forEach(tile => {
-                tile.element.style.backgroundColor = tile.terrainColor;
-              });
-            
-            path = []; 
-            const elem = document.getElementById(`tile-${currentTile}`);
-            currentTile = null;
-            }
-          }       
-  
-          document.addEventListener("keydown", EventListener); 
+          }
+        } else if (key === 'Enter') {
+          document.removeEventListener('keydown', EventListener);
+          const image =
+            GlobalState.currentSelectedUnitTile.querySelector('img');
+          GlobalState.currentSelectedUnitTile.removeChild(image);
+          path.forEach((tile) => {
+            tile.element.style.backgroundColor = tile.terrainColor;
+          });
+          GlobalState.path = [];
+          const elem = document.getElementById(`tile-${currentTileId}`);
+          elem.appendChild(image);
+          elem.addEventListener('mousedown', SelectUnit);
+          //target = elem;
+          GlobalState.currentTileId = null;
+          GlobalState.currentSelectedUnitTile = null;
+        } else if (key === 'Escape') {
+          document.removeEventListener('keydown', EventListener);
+          GlobalState.currentSelectedUnitTile.addEventListener(
+            'mousedown',
+            SelectUnit
+          );
+
+          path.forEach((tile) => {
+            tile.element.style.backgroundColor = tile.terrainColor;
+          });
+          GlobalState.currentSelectedUnitTile = null;
+          GlobalState.path = [];
+          GlobalState.currentTileId = null;
         }
-    
-      </script>
+      };
+    </script>
+
+    <script>
+      /* Game Interactive Logic */
+
+      const SelectUnit = (event) => {
+        const { target } = event;
+        const { currentSelectedUnitTile, path, currentTileId } = GlobalState;
+
+        if (currentSelectedUnitTile) {
+          document.removeEventListener('keydown', EventListener);
+          GlobalState.currentSelectedUnitTile.addEventListener(
+            'mousedown',
+            SelectUnit
+          );
+
+          path.forEach((tile) => {
+            tile.element.style.backgroundColor = tile.terrainColor;
+          });
+          GlobalState.currentSelectedUnitTile = null;
+          GlobalState.path = [];
+          GlobalState.currentTileId = null;
+        }
+
+        GlobalState.currentSelectedUnitTile = target;
+
+        target.removeEventListener('mousedown', SelectUnit);
+
+        const tileData = AddTileData(target, 'start');
+        GlobalState.path.push(tileData);
+
+        GlobalState.currentSelectedUnitTile.style.backgroundColor = 'purple';
+
+        document.addEventListener('keydown', EventListener);
+      };
+    </script>
 
     <script>
       /* Initial values */
-      const startPositions = [{ tile: "20", unit: new Unit("infantry")  }, { tile: "56", unit: new Unit("tank")}];
+      const startPositions = [
+        { tile: '20', unit: new Unit('infantry') },
+        { tile: '56', unit: new Unit('tank') },
+      ];
 
-      startPositions.forEach(({ tile, unit}) => {
+      startPositions.forEach(({ tile, unit }) => {
         const terrainElement = document.getElementById(`tile-${tile}`);
         const unitImage = AddImg(terrainElement, unit.type);
         terrainElement.appendChild(unitImage);
 
-        console.log(terrainElement);
-
-        terrainElement.addEventListener("mousedown", SelectUnit);
-      })
+        terrainElement.addEventListener('mousedown', SelectUnit);
+      });
     </script>
-
-
   </body>
 </html>
