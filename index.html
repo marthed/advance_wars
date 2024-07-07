@@ -239,6 +239,14 @@
         GlobalState.currentTileId = null;
         GlobalState.currentSelectedUnitElement = null;
       }
+
+      function ReachedMovementRange() {
+        const { currentSelectedUnitElement, path } = GlobalState;
+
+        const currentUnit = GlobalState.units[currentSelectedUnitElement.id];
+
+        return path.length >= currentUnit.movementRange;
+      }
     </script>
 
     <script>
@@ -288,6 +296,11 @@
 
           if (!CanMoveInTerrain(nextTileElem)) {
             console.log('Unit cant move in this terrain');
+            return;
+          }
+
+          if (ReachedMovementRange()) {
+            console.log('Out of range');
             return;
           }
 
