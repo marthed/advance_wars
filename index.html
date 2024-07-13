@@ -140,8 +140,14 @@
         }
       }
 
+      function GetUnitIDFromTerrainElement(terrainElement) {
+        return terrainElement.querySelector(`img.unit`)?.id;
+      }
+
       function CanMoveInTerrain(terrainElement) {
-        const id = GlobalState.currentSelectedUnitTile.querySelector('img').id;
+        const id = GetUnitIDFromTerrainElement(
+          GlobalState.currentSelectedUnitTile
+        );
 
         const unit = GlobalState.units[GlobalState.playerTurn][id];
 
@@ -205,7 +211,7 @@
       }
 
       function TileIsOccupied(elem) {
-        return !!elem.querySelector('img');
+        return !!GetUnitIDFromTerrainElement(elem);
       }
 
       function AddPath(key, nextTileElem) {
@@ -219,7 +225,7 @@
         document.removeEventListener('keydown', EventListener);
 
         const unitElement =
-          GlobalState.currentSelectedUnitTile.querySelector('img');
+          GlobalState.currentSelectedUnitTile.querySelector('img.unit');
 
         GlobalState.currentSelectedUnitElement = unitElement;
 
@@ -313,7 +319,7 @@
       }
 
       function GetUnitFormElement(element) {
-        element.querySelector('img');
+        element.querySelector('img.unit');
       }
     </script>
 
@@ -425,7 +431,8 @@
         }
 
         GlobalState.currentSelectedUnitTile = target;
-        GlobalState.currentSelectedUnitElement = target.querySelector('img');
+        GlobalState.currentSelectedUnitElement =
+          target.querySelector('img.unit');
 
         target.removeEventListener('mousedown', SelectUnit);
 
@@ -467,7 +474,6 @@
         terrainElement.appendChild(unitImage);
         GlobalState.units[2][unit.id] = unit;
         unit.tileElement = terrainElement;
-        console.log(terrainElement);
         //terrainElement.addEventListener('mousedown', SelectUnit);
       });
     </script>
