@@ -226,7 +226,7 @@
         GlobalState.currentSelectedUnitTile.removeChild(unitElement);
       }
 
-      function AddUnitElement() {
+      function AddUnitElement(settings = {}) {
         const { currentTileId, currentSelectedUnitTile, units, playerTurn } =
           GlobalState;
         const terrainElement = document.getElementById(`tile-${currentTileId}`);
@@ -236,7 +236,16 @@
         units[playerTurn][id].tileElement = terrainElement;
 
         terrainElement.appendChild(unitElement);
-        terrainElement.addEventListener('mousedown', SelectUnit);
+        if (settings.canMove) {
+          terrainElement.addEventListener('mousedown', SelectUnit);
+        }
+        if (settings.hasMoved) {
+          unitElement.classList.add('hasMoved');
+        }
+
+        if (settings.flipped) {
+          unitElement.classList.add('flipped-right');
+        }
       }
 
       function ResetPath() {
@@ -266,14 +275,18 @@
 
         // Remove event listeners for the current player's units
         Object.keys(units[playerTurn]).forEach((id) => {
-          console.log(
-            'remove event listener from',
-            units[playerTurn][id].tileElement
-          );
           units[playerTurn][id].tileElement.removeEventListener(
             'mousedown',
             SelectUnit
           );
+          const movedUnit =
+            units[playerTurn][id].tileElement.querySelector('.hasMoved');
+
+          console.log(movedUnit);
+
+          if (movedUnit) {
+            movedUnit.classList.remove('hasMoved');
+          }
         });
 
         // Update the player turn
@@ -292,52 +305,6 @@
 
         // Add event listeners for the new player's units
         Object.keys(units[GlobalState.playerTurn]).forEach((id) => {
-          console.log(
-            'add event listener to',
-            units[GlobalState.playerTurn][id].tileElement
-          );
-          units[GlobalState.playerTurn][id].tileElement.addEventListener(
-            'mousedown',
-            SelectUnit
-          );
-        });
-      }
-
-      function EndTurn() {
-        const { playerTurn, numberOfPlayers, units } = GlobalState;
-
-        // Remove event listeners for the current player's units
-        Object.keys(units[playerTurn]).forEach((id) => {
-          console.log(
-            'remove event listener from',
-            units[playerTurn][id].tileElement
-          );
-          units[playerTurn][id].tileElement.removeEventListener(
-            'mousedown',
-            SelectUnit
-          );
-        });
-
-        // Update the player turn
-        if (playerTurn === numberOfPlayers) {
-          GlobalState.turn++;
-          GlobalState.playerTurn = 1;
-        } else {
-          GlobalState.playerTurn++;
-        }
-
-        // Update the stats display
-        document.getElementById('stats-day').innerHTML =
-          'Day: ' + GlobalState.turn;
-        document.getElementById('stats-player').innerHTML =
-          'Player ' + GlobalState.playerTurn;
-
-        // Add event listeners for the new player's units
-        Object.keys(units[GlobalState.playerTurn]).forEach((id) => {
-          console.log(
-            'add event listener to',
-            units[GlobalState.playerTurn][id].tileElement
-          );
           units[GlobalState.playerTurn][id].tileElement.addEventListener(
             'mousedown',
             SelectUnit
@@ -417,7 +384,10 @@
         if (key === 'Enter') {
           RemoveUnitElement();
           ResetPath();
-          AddUnitElement();
+          AddUnitElement({
+            hasMoved: true,
+            flipped: GlobalState.playerTurn === 2,
+          });
           ResetSelectedTile();
           return;
         }

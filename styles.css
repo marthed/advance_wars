@@ -82,3 +82,7 @@ body {
 .stats-button:hover {
   background-color: darkslategray;
 }
+
+.hasMoved {
+  filter: brightness(50%);
+}
