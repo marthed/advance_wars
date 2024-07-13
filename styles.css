@@ -23,16 +23,50 @@ body {
 }
 
 .grid-item {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #ccc;
-  border: 1px solid black;/* Optional: add border to see the grid items clearly */
-  font-size: 12px; /* Adjust the font size as needed */
   height: 40px;
   width: 40px;
   border: none;
 }
+
+.unit {
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+}
+
+.unit-image {
+  pointer-events: none;
+  height: 40px;
+  width: 40px;
+}
+
+.hp {
+  font-size: 10px;
+  font-weight: bold;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  position: relative;
+  right: -28px;
+  top: -40px;
+  padding: 1px;
+  background-color: black;
+}
+
+.color-red {
+  color: red;
+}
+
+.color-blue {
+  color: blue;
+}
+
+.color-green {
+  color: green;
+}
+
+.color-yellow {
+  color: yellow;
+}
+
 
 .terrain-field {
   background-color: lightgreen;

@@ -59,6 +59,7 @@
         movementRange = 0;
         canMoveInTerrain = ['field', 'forest', 'mountain', 'water'];
         tileElement = null;
+        hitPoints = 10;
 
         constructor(type) {
           this.id = GenerateId();
@@ -90,7 +91,29 @@
         return { movementRange: 0, canMoveInTerrain: [] };
       }
 
-      function AddUnitImage(tile, unit, player) {
+      function CreateUnitElement(unit, player) {
+        const element = document.createElement('div');
+        element.classList.add('unit');
+
+        const unitImage = CreateUnitImage(unit, player);
+
+        const hpElement = document.createElement('span');
+        hpElement.classList.add('hp');
+        hpElement.style.zIndex = '2';
+        hpElement.innerHTML = unit.hitPoints;
+
+        const color = GlobalState.playerColors[player];
+        hpElement.classList.add(`color-${color}`);
+
+        element.appendChild(unitImage);
+        element.appendChild(hpElement);
+
+        element.id = unit.id;
+
+        return element;
+      }
+
+      function CreateUnitImage(unit, player) {
         const { type, id } = unit;
         const img = document.createElement('img');
 
@@ -102,12 +125,14 @@
           img.src = `units/${type}.png`;
         }
 
-        img.style.pointerEvents = 'none';
-        img.style.height = '40px';
-        img.style.width = '40px';
+        // img.style.pointerEvents = 'none';
+        // img.style.height = '40px';
+        // img.style.width = '40px';
         img.classList.add('overlay-image');
-        img.classList.add('unit');
-        img.id = id;
+        img.classList.add('unit-image');
+
+        //img.classList.add('unit');
+        //img.id = id;
         return img;
       }
 
@@ -141,7 +166,7 @@
       }
 
       function GetUnitIDFromTerrainElement(terrainElement) {
-        return terrainElement.querySelector(`img.unit`)?.id;
+        return terrainElement.querySelector(`div.unit`)?.id;
       }
 
       function CanMoveInTerrain(terrainElement) {
@@ -225,7 +250,7 @@
         document.removeEventListener('keydown', EventListener);
 
         const unitElement =
-          GlobalState.currentSelectedUnitTile.querySelector('img.unit');
+          GlobalState.currentSelectedUnitTile.querySelector('div.unit');
 
         GlobalState.currentSelectedUnitElement = unitElement;
 
@@ -250,7 +275,10 @@
         }
 
         if (settings.flipped) {
-          unitElement.classList.add('flipped-right');
+          unitElement
+            .querySelector('img.unit-image')
+            .classList.add('flipped-right');
+          //unitElement.classList.add('flipped-right');
         }
       }
 
@@ -317,7 +345,7 @@
       }
 
       function GetUnitFormElement(element) {
-        element.querySelector('img.unit');
+        element.querySelector('div.unit');
       }
     </script>
 
@@ -430,7 +458,7 @@
 
         GlobalState.currentSelectedUnitTile = target;
         GlobalState.currentSelectedUnitElement =
-          target.querySelector('img.unit');
+          target.querySelector('div.unit');
 
         target.removeEventListener('mousedown', SelectUnit);
 
@@ -457,8 +485,10 @@
 
       startPositionsPlayer1.forEach(({ tile, unit }) => {
         const terrainElement = document.getElementById(`tile-${tile}`);
-        const unitImage = AddUnitImage(terrainElement, unit, 1);
-        terrainElement.appendChild(unitImage);
+        //const unitImage = CreateUnitImage(unit, 1);
+        const unitElement = CreateUnitElement(unit, 1);
+
+        terrainElement.appendChild(unitElement);
         GlobalState.units[1][unit.id] = unit;
 
         terrainElement.addEventListener('mousedown', SelectUnit);
@@ -467,9 +497,9 @@
 
       startPositionsPlayer2.forEach(({ tile, unit }) => {
         const terrainElement = document.getElementById(`tile-${tile}`);
-        const unitImage = AddUnitImage(terrainElement, unit, 2);
-        unitImage.classList.add('flipped-right');
-        terrainElement.appendChild(unitImage);
+        const unitElement = CreateUnitElement(unit, 2);
+
+        terrainElement.appendChild(unitElement);
         GlobalState.units[2][unit.id] = unit;
         unit.tileElement = terrainElement;
         //terrainElement.addEventListener('mousedown', SelectUnit);
