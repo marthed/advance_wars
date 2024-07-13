@@ -58,6 +58,7 @@
         type = '';
         movementRange = 0;
         canMoveInTerrain = ['field', 'forest', 'mountain', 'water'];
+        tileElement = null;
 
         constructor(type) {
           this.id = GenerateId();
@@ -89,19 +90,23 @@
         return { movementRange: 0, canMoveInTerrain: [] };
       }
 
-      function AddImg(tile, unit) {
+      function AddUnitImage(tile, unit, player) {
         const { type, id } = unit;
         const img = document.createElement('img');
 
+        const color = GlobalState.playerColors[player];
+
         if (type === 'infantry') {
-          img.src = 'units/infantry.png';
-        } else if (type === 'tank') {
-          img.src = 'units/tank.png';
+          img.src = `units/${type}_${color}.png`;
+        } else {
+          img.src = `units/${type}.png`;
         }
+
         img.style.pointerEvents = 'none';
         img.style.height = '40px';
         img.style.width = '40px';
         img.setAttribute('class', 'overlay-image');
+        img.setAttribute('class', 'unit');
         img.id = id;
         return img;
       }
@@ -138,7 +143,7 @@
       function CanMoveInTerrain(terrainElement) {
         const id = GlobalState.currentSelectedUnitTile.querySelector('img').id;
 
-        const unit = GlobalState.units[id];
+        const unit = GlobalState.units[GlobalState.playerTurn][id];
 
         if (!unit) {
           console.log(`No unit found for ${id}`);
@@ -222,9 +227,14 @@
       }
 
       function AddUnitElement() {
-        const { currentTileId, currentSelectedUnitTile } = GlobalState;
+        const { currentTileId, currentSelectedUnitTile, units, playerTurn } =
+          GlobalState;
         const terrainElement = document.getElementById(`tile-${currentTileId}`);
         const unitElement = GlobalState.currentSelectedUnitElement;
+        const id = unitElement.id;
+
+        units[playerTurn][id].tileElement = terrainElement;
+
         terrainElement.appendChild(unitElement);
         terrainElement.addEventListener('mousedown', SelectUnit);
       }
@@ -243,16 +253,30 @@
       }
 
       function ReachedMovementRange() {
-        const { currentSelectedUnitElement, path } = GlobalState;
+        const { currentSelectedUnitElement, path, playerTurn } = GlobalState;
 
-        const currentUnit = GlobalState.units[currentSelectedUnitElement.id];
+        const currentUnit =
+          GlobalState.units[playerTurn][currentSelectedUnitElement.id];
 
         return path.length >= currentUnit.movementRange;
       }
 
       function EndTurn() {
-        const { turn, playerTurn, numberOfPlayers } = GlobalState;
+        const { playerTurn, numberOfPlayers, units } = GlobalState;
 
+        // Remove event listeners for the current player's units
+        Object.keys(units[playerTurn]).forEach((id) => {
+          console.log(
+            'remove event listener from',
+            units[playerTurn][id].tileElement
+          );
+          units[playerTurn][id].tileElement.removeEventListener(
+            'mousedown',
+            SelectUnit
+          );
+        });
+
+        // Update the player turn
         if (playerTurn === numberOfPlayers) {
           GlobalState.turn++;
           GlobalState.playerTurn = 1;
@@ -260,10 +284,69 @@
           GlobalState.playerTurn++;
         }
 
+        // Update the stats display
         document.getElementById('stats-day').innerHTML =
           'Day: ' + GlobalState.turn;
         document.getElementById('stats-player').innerHTML =
           'Player ' + GlobalState.playerTurn;
+
+        // Add event listeners for the new player's units
+        Object.keys(units[GlobalState.playerTurn]).forEach((id) => {
+          console.log(
+            'add event listener to',
+            units[GlobalState.playerTurn][id].tileElement
+          );
+          units[GlobalState.playerTurn][id].tileElement.addEventListener(
+            'mousedown',
+            SelectUnit
+          );
+        });
+      }
+
+      function EndTurn() {
+        const { playerTurn, numberOfPlayers, units } = GlobalState;
+
+        // Remove event listeners for the current player's units
+        Object.keys(units[playerTurn]).forEach((id) => {
+          console.log(
+            'remove event listener from',
+            units[playerTurn][id].tileElement
+          );
+          units[playerTurn][id].tileElement.removeEventListener(
+            'mousedown',
+            SelectUnit
+          );
+        });
+
+        // Update the player turn
+        if (playerTurn === numberOfPlayers) {
+          GlobalState.turn++;
+          GlobalState.playerTurn = 1;
+        } else {
+          GlobalState.playerTurn++;
+        }
+
+        // Update the stats display
+        document.getElementById('stats-day').innerHTML =
+          'Day: ' + GlobalState.turn;
+        document.getElementById('stats-player').innerHTML =
+          'Player ' + GlobalState.playerTurn;
+
+        // Add event listeners for the new player's units
+        Object.keys(units[GlobalState.playerTurn]).forEach((id) => {
+          console.log(
+            'add event listener to',
+            units[GlobalState.playerTurn][id].tileElement
+          );
+          units[GlobalState.playerTurn][id].tileElement.addEventListener(
+            'mousedown',
+            SelectUnit
+          );
+        });
+      }
+
+      function GetUnitFormElement(element) {
+        element.querySelector('img');
       }
     </script>
 
@@ -273,10 +356,11 @@
         currentTileId: null, // number
         currentSelectedUnitTile: null, // element
         currentSelectedUnitElement: null,
-        units: {},
+        units: { 1: {}, 2: {}, 3: {}, 4: {} },
         turn: 1,
         playerTurn: 1,
         numberOfPlayers: 2,
+        playerColors: { 1: 'green', 2: 'red', 3: 'blue', 4: 'yellow' },
       };
     </script>
 
@@ -398,19 +482,22 @@
 
       startPositionsPlayer1.forEach(({ tile, unit }) => {
         const terrainElement = document.getElementById(`tile-${tile}`);
-        const unitImage = AddImg(terrainElement, unit);
+        const unitImage = AddUnitImage(terrainElement, unit, 1);
         terrainElement.appendChild(unitImage);
-        GlobalState.units[unit.id] = unit;
+        GlobalState.units[1][unit.id] = unit;
 
         terrainElement.addEventListener('mousedown', SelectUnit);
+        unit.tileElement = terrainElement;
       });
 
       startPositionsPlayer2.forEach(({ tile, unit }) => {
         const terrainElement = document.getElementById(`tile-${tile}`);
-        const unitImage = AddImg(terrainElement, unit);
+        const unitImage = AddUnitImage(terrainElement, unit, 2);
         unitImage.setAttribute('class', 'flipped-right');
         terrainElement.appendChild(unitImage);
-        GlobalState.units[unit.id] = unit;
+        GlobalState.units[2][unit.id] = unit;
+        unit.tileElement = terrainElement;
+        console.log(terrainElement);
         //terrainElement.addEventListener('mousedown', SelectUnit);
       });
     </script>
