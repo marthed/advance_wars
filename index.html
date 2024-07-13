@@ -3,15 +3,17 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="map" class="grid-container">
-      <!-- Example grid items -->
-      <!-- <div class="grid-item"></div>
-      <div class="grid-item"></div>
-      <div class="grid-item"></div> -->
-      <!-- Add more items as needed -->
+    <div class="main-container">
+      <div id="stats" class="stats">
+        <div id="stats-day" class="stats-item">Day: 1</div>
+        <div id="stats-player" class="stats-item">Player 1</div>
+        <button id="end-turn" class="stats-button">End turn</button>
+      </div>
+      <div id="map" class="grid-container"></div>
     </div>
 
     <script>
+      /* Generate Map */
       const htmlMap = document.getElementById('map');
 
       const size = 20 * 40;
@@ -247,6 +249,22 @@
 
         return path.length >= currentUnit.movementRange;
       }
+
+      function EndTurn() {
+        const { turn, playerTurn, numberOfPlayers } = GlobalState;
+
+        if (playerTurn === numberOfPlayers) {
+          GlobalState.turn++;
+          GlobalState.playerTurn = 1;
+        } else {
+          GlobalState.playerTurn++;
+        }
+
+        document.getElementById('stats-day').innerHTML =
+          'Day: ' + GlobalState.turn;
+        document.getElementById('stats-player').innerHTML =
+          'Player ' + GlobalState.playerTurn;
+      }
     </script>
 
     <script>
@@ -256,6 +274,9 @@
         currentSelectedUnitTile: null, // element
         currentSelectedUnitElement: null,
         units: {},
+        turn: 1,
+        playerTurn: 1,
+        numberOfPlayers: 2,
       };
     </script>
 
@@ -365,12 +386,17 @@
 
     <script>
       /* Initial values */
-      const startPositions = [
+      const startPositionsPlayer1 = [
         { tile: '20', unit: new Unit('infantry') },
         { tile: '56', unit: new Unit('tank') },
       ];
 
-      startPositions.forEach(({ tile, unit }) => {
+      const startPositionsPlayer2 = [
+        { tile: '306', unit: new Unit('infantry') },
+        { tile: '307', unit: new Unit('tank') },
+      ];
+
+      startPositionsPlayer1.forEach(({ tile, unit }) => {
         const terrainElement = document.getElementById(`tile-${tile}`);
         const unitImage = AddImg(terrainElement, unit);
         terrainElement.appendChild(unitImage);
@@ -378,6 +404,18 @@
 
         terrainElement.addEventListener('mousedown', SelectUnit);
       });
+
+      startPositionsPlayer2.forEach(({ tile, unit }) => {
+        const terrainElement = document.getElementById(`tile-${tile}`);
+        const unitImage = AddImg(terrainElement, unit);
+        unitImage.setAttribute('class', 'flipped-right');
+        terrainElement.appendChild(unitImage);
+        GlobalState.units[unit.id] = unit;
+        //terrainElement.addEventListener('mousedown', SelectUnit);
+      });
+    </script>
+    <script>
+      document.getElementById('end-turn').addEventListener('click', EndTurn);
     </script>
   </body>
 </html>

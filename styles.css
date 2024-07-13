@@ -1,10 +1,16 @@
 body {
-  display: flex;
+  /* display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: center; */
   height: 100vh;
   margin: 0;
   font-family: Arial, sans-serif;
+}
+
+.main-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .grid-container {
@@ -42,6 +48,37 @@ body {
   
 }
 
+.flipped-right {
+  transform: scaleX(-1);
+}
+
 .overlay-image {
   z-index: 1;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  background-color: bisque;
+}
+
+.stats-item {
+  font-weight: bold;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  padding-right: 2px;
+}
+.stats-button {
+  margin-right: 12px;
+  padding-right: 2px;
+  border: none;
+  background-color: black;
+  color: white;
+}
+
+.stats-button:hover {
+  background-color: darkslategray;
 }
