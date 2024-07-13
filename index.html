@@ -40,6 +40,10 @@
             element.classList.add('terrain-forest');
             const img = CreateTerrainImage('forest');
             element.appendChild(img);
+          } else if (Math.random() < 0.1) {
+            element.classList.add('terrain-mountain');
+            const img = CreateTerrainImage('mountain');
+            element.appendChild(img);
           } else {
             element.classList.add('terrain-field');
             const img = CreateTerrainImage('field');
@@ -153,6 +157,10 @@
         // img.style.width = '40px';
         img.classList.add('overlay-image');
         img.classList.add('unit-image');
+
+        if (player === 2) {
+          img.classList.add('flipped-right');
+        }
 
         //img.classList.add('unit');
         //img.id = id;
@@ -334,11 +342,13 @@
         const currentUnit =
           GlobalState.units[playerTurn][currentSelectedUnitElement.id];
 
-        return path.length >= currentUnit.movementRange;
+        return path.length >= currentUnit.movementRange + 1;
       }
 
       function EndTurn() {
         const { playerTurn, numberOfPlayers, units } = GlobalState;
+
+        DeselectUnit();
 
         // Remove event listeners for the current player's units
         Object.keys(units[playerTurn]).forEach((id) => {
@@ -379,6 +389,17 @@
 
       function GetUnitFormElement(element) {
         element.querySelector('div.unit');
+      }
+
+      function DeselectUnit() {
+        document.removeEventListener('keydown', EventListener);
+        GlobalState.currentSelectedUnitTile?.addEventListener(
+          'mousedown',
+          SelectUnit
+        );
+
+        ResetPath();
+        ResetSelectedTile();
       }
     </script>
 
@@ -447,25 +468,22 @@
         }
 
         if (key === 'Enter') {
-          RemoveUnitElement();
-          ResetPath();
-          AddUnitElement({
-            hasMoved: true,
-            flipped: GlobalState.playerTurn === 2,
-          });
-          ResetSelectedTile();
-          return;
+          if (GlobalState.path.length > 1) {
+            RemoveUnitElement();
+            ResetPath();
+            AddUnitElement({
+              hasMoved: true,
+              flipped: GlobalState.playerTurn === 2,
+            });
+            ResetSelectedTile();
+            return;
+          } else {
+            DeselectUnit();
+          }
         }
 
         if (key === 'Escape') {
-          document.removeEventListener('keydown', EventListener);
-          GlobalState.currentSelectedUnitTile.addEventListener(
-            'mousedown',
-            SelectUnit
-          );
-
-          ResetPath();
-          ResetSelectedTile();
+          DeselectUnit();
           return;
         }
       };
