@@ -20,17 +20,17 @@
 
       for (let i = 0; i < size; i++) {
         const element = document.createElement('div');
-        element.setAttribute('class', 'grid-item');
+        element.classList.add('grid-item');
         element.id = 'tile-' + i;
 
         if (i < size / 2) {
           if (Math.random() < 0.2) {
-            element.setAttribute('class', 'terrain-forest');
+            element.classList.add('terrain-forest');
           } else {
-            element.setAttribute('class', 'terrain-field');
+            element.classList.add('terrain-field');
           }
         } else {
-          element.setAttribute('class', 'terrain-water');
+          element.classList.add('terrain-water');
         }
 
         htmlMap.appendChild(element);
@@ -105,8 +105,8 @@
         img.style.pointerEvents = 'none';
         img.style.height = '40px';
         img.style.width = '40px';
-        img.setAttribute('class', 'overlay-image');
-        img.setAttribute('class', 'unit');
+        img.classList.add('overlay-image');
+        img.classList.add('unit');
         img.id = id;
         return img;
       }
@@ -288,8 +288,6 @@
           const movedUnit =
             units[playerTurn][id].tileElement.querySelector('.hasMoved');
 
-          console.log(movedUnit);
-
           if (movedUnit) {
             movedUnit.classList.remove('hasMoved');
           }
@@ -470,7 +468,7 @@
       startPositionsPlayer2.forEach(({ tile, unit }) => {
         const terrainElement = document.getElementById(`tile-${tile}`);
         const unitImage = AddUnitImage(terrainElement, unit, 2);
-        unitImage.setAttribute('class', 'flipped-right');
+        unitImage.classList.add('flipped-right');
         terrainElement.appendChild(unitImage);
         GlobalState.units[2][unit.id] = unit;
         unit.tileElement = terrainElement;
