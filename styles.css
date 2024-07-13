@@ -17,7 +17,7 @@ body {
   display: grid;
   grid-template-columns: repeat(40, 40px); /* 40 columns */
   grid-template-rows: repeat(20, 40px);   /* 60 rows */
-  gap: 1px;
+  gap: 0px;
   width: 80vw; /* Adjust the container width as needed */
   height: 90vh; /* Adjust the container height as needed */
 }
@@ -26,12 +26,17 @@ body {
   height: 40px;
   width: 40px;
   border: none;
+  position: relative;
 }
 
 .unit {
+  position: absolute;
   width: 40px;
   height: 40px;
   pointer-events: none;
+  z-index: 2;
+  top: 0;
+  left: 0;
 }
 
 .unit-image {
@@ -49,6 +54,30 @@ body {
   top: -40px;
   padding: 1px;
   background-color: black;
+}
+
+.terrain-image {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  z-index: 1;
+}
+
+.path {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+}
+
+.path__highlighted {
+  background-color: rgba(128, 0, 128, 0.441);
+  z-index: 2;
 }
 
 .color-red {

@@ -13,6 +13,18 @@
     </div>
 
     <script>
+      /* Terrain Generation */
+      function CreateTerrainImage(terrainType) {
+        const img = document.createElement('img');
+
+        img.src = `terrain/${terrainType}.png`;
+        img.classList.add('terrain-image');
+        //img.classList.add(`terrain-${terrainType}`);
+        return img;
+      }
+    </script>
+
+    <script>
       /* Generate Map */
       const htmlMap = document.getElementById('map');
 
@@ -26,12 +38,23 @@
         if (i < size / 2) {
           if (Math.random() < 0.2) {
             element.classList.add('terrain-forest');
+            const img = CreateTerrainImage('forest');
+            element.appendChild(img);
           } else {
             element.classList.add('terrain-field');
+            const img = CreateTerrainImage('field');
+            element.appendChild(img);
           }
         } else {
           element.classList.add('terrain-water');
+          const img = CreateTerrainImage('water');
+          element.appendChild(img);
         }
+
+        const path = document.createElement('div');
+        path.classList.add('path');
+
+        element.appendChild(path);
 
         htmlMap.appendChild(element);
       }
@@ -220,8 +243,12 @@
 
         const lastTile = path[path.length - 1];
 
-        document.getElementById(`tile-${lastTile.id}`).style.backgroundColor =
-          lastTile.terrainColor;
+        // document.getElementById(`tile-${lastTile.id}`).style.backgroundColor =
+        //   lastTile.terrainColor;
+        document
+          .getElementById(`tile-${lastTile.id}`)
+          .querySelector('.path')
+          .classList.remove('path__highlighted');
 
         GlobalState.path.pop();
         GlobalState.currentTileId = Number(elem.id.split('-')[1]);
@@ -243,7 +270,10 @@
         GlobalState.currentTileId = Number(nextTileElem.id.split('-')[1]);
         const tileData = AddTileData(nextTileElem, key);
         GlobalState.path.push(tileData);
-        nextTileElem.style.backgroundColor = 'purple';
+
+        nextTileElem.querySelector('.path').classList.add('path__highlighted');
+
+        //nextTileElem.style.backgroundColor = 'purple';
       }
 
       function RemoveUnitElement() {
@@ -284,7 +314,10 @@
 
       function ResetPath() {
         GlobalState.path.forEach((tile) => {
-          tile.element.style.backgroundColor = tile.terrainColor;
+          tile.element
+            .querySelector('.path')
+            .classList.remove('path__highlighted');
+          //tile.element.style.backgroundColor = tile.terrainColor;
         });
         GlobalState.path = [];
       }
@@ -465,7 +498,10 @@
         const tileData = AddTileData(target, 'start');
         GlobalState.path.push(tileData);
 
-        GlobalState.currentSelectedUnitTile.style.backgroundColor = 'purple';
+        GlobalState.currentSelectedUnitTile
+          .querySelector('.path')
+          .classList.add('path__highlighted');
+        //GlobalState.currentSelectedUnitTile.style.backgroundColor = 'purple';
 
         document.addEventListener('keydown', EventListener);
       };
