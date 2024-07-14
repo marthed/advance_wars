@@ -30,6 +30,8 @@
 
       const size = 20 * 40;
 
+      let waterTiles = [];
+
       for (let i = 0; i < size; i++) {
         const element = document.createElement('div');
         element.classList.add('grid-item');
@@ -53,6 +55,7 @@
           element.classList.add('terrain-water');
           const img = CreateTerrainImage('water');
           element.appendChild(img);
+          waterTiles.push(img);
         }
 
         const path = document.createElement('div');
@@ -62,6 +65,25 @@
 
         htmlMap.appendChild(element);
       }
+    </script>
+    <script>
+      const WaterAnimation = {
+        numberOfTilesPerInterval: waterTiles.length,
+        max: waterTiles.length - 1,
+        min: 0,
+        paths: ['water.png', 'water_1.png', 'water_2.png', 'water_3.png'],
+      };
+      /* Water animation */
+      setInterval(() => {
+        const { numberOfTilesPerInterval, max, min, paths } = WaterAnimation;
+
+        for (let i = 0; i < numberOfTilesPerInterval; i++) {
+          const index = Math.floor(Math.random() * (max - min + 1)) + min;
+          const image = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
+
+          waterTiles[index].src = `terrain/${paths[image]}`;
+        }
+      }, 2000);
     </script>
 
     <script>
