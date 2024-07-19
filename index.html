@@ -137,6 +137,13 @@
         if (type === 'tank') {
           return { movementRange: 6, canMoveInTerrain: ['field', 'forest'] };
         }
+        if (type === 'rpg') {
+          return {
+            movementRange: 2,
+            canMoveInTerrain: ['field', 'forest', 'mountain'],
+          };
+        }
+
         return { movementRange: 0, canMoveInTerrain: [] };
       }
 
@@ -170,6 +177,8 @@
 
         if (type === 'infantry') {
           img.src = `units/${type}_${color}.png`;
+        } else if (type === 'rpg') {
+          img.src = `units/infantry_${type}_${color}.png`;
         } else {
           img.src = `units/${type}.png`;
         }
@@ -552,11 +561,13 @@
       const startPositionsPlayer1 = [
         { tile: '20', unit: new Unit('infantry') },
         { tile: '56', unit: new Unit('tank') },
+        { tile: '58', unit: new Unit('rpg') },
       ];
 
       const startPositionsPlayer2 = [
         { tile: '306', unit: new Unit('infantry') },
         { tile: '307', unit: new Unit('tank') },
+        { tile: '305', unit: new Unit('rpg') },
       ];
 
       startPositionsPlayer1.forEach(({ tile, unit }) => {
