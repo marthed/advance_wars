@@ -11,6 +11,7 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow: auto;
 }
 
 .grid-container {
@@ -18,7 +19,9 @@ body {
   grid-template-columns: repeat(40, 40px); /* 40 columns */
   grid-template-rows: repeat(20, 40px);   /* 60 rows */
   gap: 0px;
-  width: 80vw; /* Adjust the container width as needed */
+  width: 100%;
+  overflow: scroll;
+  /* width: 80vw;  */
   height: 90vh; /* Adjust the container height as needed */
 }
 
@@ -121,11 +124,16 @@ body {
 }
 
 .stats {
+  position: -webkit-sticky; /* For Safari */
+  position: sticky;
+  top: 0;
+  width: 100vw;
   display: flex;
   justify-content: center;
-  width: 100%;
+  flex: 0 0 auto;
   height: 40px;
   background-color: bisque;
+  z-index: 10000;
 }
 
 .stats-item {
