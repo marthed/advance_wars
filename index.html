@@ -111,7 +111,7 @@
         movementRange = 0;
         canMoveInTerrain = ['field', 'forest', 'mountain', 'water'];
         tileElement = null;
-        hitPoints = 10;
+        hitPoints = 100;
         directAttack = true;
         directDefense = true;
 
@@ -163,6 +163,13 @@
         }
 
         return { movementRange: 0, canMoveInTerrain: [] };
+      }
+
+      function SetHitPoints(unit) {
+        console.log('🚀 ~ SetHitPoints ~ unit:', unit);
+        const unitElement = unit.tileElement.querySelector('div.unit');
+        const hp = unitElement.querySelector('span.hp');
+        hp.innerHTML = unit.hitPoints;
       }
 
       function CreateUnitElement(unit, player) {
@@ -245,6 +252,14 @@
 
       function GetUnitIDFromTerrainElement(terrainElement) {
         return terrainElement.querySelector(`div.unit`)?.id;
+      }
+
+      function GetTerrainType(terrainElement) {
+        const terrain = Array.from(terrainElement.classList)
+          .find((c) => c.split('-')[0] === 'terrain')
+          .split('-')[1];
+
+        return terrain;
       }
 
       function CanMoveInTerrain(terrainElement) {
@@ -434,6 +449,7 @@
       }
 
       function GetUnitFromElement(element) {
+        console.log(element.querySelector('div.unit'));
         return element.querySelector('div.unit');
       }
 
@@ -495,18 +511,34 @@
         }
 
         if (key === 'Enter') {
-          Attack();
+          PreAttack();
         }
       };
 
-      const Attack = () => {
-        console.log('Attack!');
+      const PreAttack = () => {
         RemoveUnitActionModalEvents();
+        CloseUnitActionModal();
+        Attack();
+        RemoveUnitElement();
+        AddUnitElement({
+          hasMoved: true,
+          canMove: false,
+          flipped: GlobalState.playerTurn === 2,
+        });
+        ResetSelectedTile();
       };
 
       const NoAttack = () => {
         console.log('No attack');
         RemoveUnitActionModalEvents();
+        CloseUnitActionModal();
+        RemoveUnitElement();
+        AddUnitElement({
+          hasMoved: true,
+          canMove: false,
+          flipped: GlobalState.playerTurn === 2,
+        });
+        ResetSelectedTile();
       };
 
       function OpenUnitActionModal() {
@@ -527,7 +559,7 @@
         const attack = actions[0];
         const noAttack = actions[1];
 
-        attack.addEventListener('click', Attack);
+        attack.addEventListener('click', PreAttack);
         noAttack.addEventListener('click', NoAttack);
         document.addEventListener('keydown', UnitActionModalEvents);
       }
@@ -559,9 +591,7 @@
               .querySelector('.path')
               .classList.add('path__highlighted--attack'); // Change to image later
 
-            GlobalState.targetEnemyUnitTile = GetUnitFromElement(
-              enemyTile.tileElement
-            );
+            GlobalState.targetEnemyUnitTile = enemyTile.tileElement;
           }
         }
 
@@ -651,6 +681,126 @@
 
     <script>
       /* Combat Logic */
+
+      function TerrainBonus(terrainType) {
+        if (terrainType === 'field') {
+          return 1;
+        }
+        if (terrainType === 'forest') {
+          return 2;
+        }
+        if (terrainType === 'mountain') {
+          return 4;
+        }
+        if (terrainType === 'water') {
+          return 0;
+        }
+      }
+
+      function Attack() {
+        console.log('ATTACK!');
+        const {
+          currentSelectedUnitElement,
+          currentSelectedUnitTile,
+          targetEnemyUnitTile,
+          playerTurn,
+          currentTileId,
+        } = GlobalState;
+
+        const enemyElement = GetUnitFromElement(targetEnemyUnitTile);
+
+        const attackUnit =
+          GlobalState.units[playerTurn][currentSelectedUnitElement.id];
+
+        const defenceUnit =
+          GlobalState.units[enemyElement.getAttribute('player')][
+            enemyElement.id
+          ];
+
+        const attackTerrain = GetTerrainType(
+          document.getElementById(`tile-${currentTileId}`)
+        );
+        const defenceTerrain = GetTerrainType(targetEnemyUnitTile);
+
+        if (attackUnit.type === 'infantry') {
+          if (defenceUnit.type === 'infantry') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 50, attackTerrain },
+              { defenceUnit, defenderStength: 40, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'rpg') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 50, attackTerrain },
+              { defenceUnit, defenderStength: 40, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'tank') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 10, attackTerrain },
+              { defenceUnit, defenderStength: 80, defenceTerrain }
+            );
+          }
+        }
+
+        if (attackUnit.type === 'rpg') {
+          if (defenceUnit.type === 'infantry') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 50, attackTerrain },
+              { defenceUnit, defenderStength: 40, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'rpg') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 50, attackTerrain },
+              { defenceUnit, defenderStength: 40, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'tank') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 80, attackTerrain },
+              { defenceUnit, defenderStength: 40, defenceTerrain }
+            );
+          }
+        }
+
+        if (attackUnit.type === 'tank') {
+          if (defenceUnit.type === 'infantry') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 80, attackTerrain },
+              { defenceUnit, defenderStength: 10, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'rpg') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 80, attackTerrain },
+              { defenceUnit, defenderStength: 50, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'tank') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 60, attackTerrain },
+              { defenceUnit, defenderStength: 40, defenceTerrain }
+            );
+          }
+        }
+
+        SetHitPoints(attackUnit);
+        SetHitPoints(defenceUnit);
+      }
+
+      function CalculateHitPoints(a, d) {
+        const { attackUnit, attackerStength, attackTerrain } = a;
+        const { defenceUnit, defenderStength, defenceTerrain } = d;
+
+        attackUnit.hitPoints =
+          attackUnit.hitPoints -
+          Math.max(defenderStength - TerrainBonus(attackTerrain), 0);
+
+        defenceUnit.hitPoints =
+          defenceUnit.hitPoints -
+          Math.max(attackerStength - TerrainBonus(defenceTerrain), 0);
+      }
     </script>
 
     <script>
@@ -753,7 +903,6 @@
 
     <script>
       /* Game Interactive Logic */
-
       const SelectUnit = (event) => {
         const { target } = event;
         const { currentSelectedUnitTile, path, currentTileId } = GlobalState;
