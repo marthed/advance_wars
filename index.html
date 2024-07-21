@@ -107,11 +107,18 @@
         canMoveInTerrain = ['field', 'forest', 'mountain', 'water'];
         tileElement = null;
         hitPoints = 10;
+        directAttack = true;
+        directDefense = true;
 
         constructor(type) {
           this.id = GenerateId();
           this.type = type;
-          const { canMoveInTerrain, movementRange } = GetUnitLogic(type);
+          const {
+            canMoveInTerrain,
+            movementRange,
+            directAttack = true,
+            directDefense = true,
+          } = GetUnitLogic(type);
           this.canMoveInTerrain = canMoveInTerrain;
           this.movementRange = movementRange;
         }
@@ -141,6 +148,14 @@
             canMoveInTerrain: ['field', 'forest', 'mountain'],
           };
         }
+        if (type === 'rockets') {
+          return {
+            movementRange: 3,
+            canMoveInTerrain: ['field', 'forest'],
+            directAttack: false,
+            directDefense: false,
+          };
+        }
 
         return { movementRange: 0, canMoveInTerrain: [] };
       }
@@ -148,6 +163,7 @@
       function CreateUnitElement(unit, player) {
         const element = document.createElement('div');
         element.classList.add('unit');
+        element.setAttribute('player', player);
 
         const unitImage = CreateUnitImage(unit, player);
 
@@ -177,13 +193,12 @@
           img.src = `units/${type}_${color}.png`;
         } else if (type === 'rpg') {
           img.src = `units/infantry_${type}_${color}.png`;
+        } else if (type === 'rockets') {
+          img.src = `units/${type}_${color}.png`;
         } else {
           img.src = `units/${type}.png`;
         }
 
-        // img.style.pointerEvents = 'none';
-        // img.style.height = '40px';
-        // img.style.width = '40px';
         img.classList.add('overlay-image');
         img.classList.add('unit-image');
 
@@ -191,8 +206,6 @@
           img.classList.add('flipped-right');
         }
 
-        //img.classList.add('unit');
-        //img.id = id;
         return img;
       }
 
@@ -280,8 +293,6 @@
 
         const lastTile = path[path.length - 1];
 
-        // document.getElementById(`tile-${lastTile.id}`).style.backgroundColor =
-        //   lastTile.terrainColor;
         document
           .getElementById(`tile-${lastTile.id}`)
           .querySelector('.path')
@@ -417,7 +428,7 @@
       }
 
       function GetUnitFormElement(element) {
-        element.querySelector('div.unit');
+        return element.querySelector('div.unit');
       }
 
       function DeselectUnit() {
@@ -430,6 +441,60 @@
         ResetPath();
         ResetSelectedTile();
       }
+
+      function MapDirection(id) {
+        const { currentTileId } = GlobalState;
+        if (currentTileId - 1 === id) {
+          return 'ArrowLeft';
+        }
+        if (currentTileId + 1 === id) {
+          return 'ArrowRight';
+        }
+        if (currentTileId - 40 === id) {
+          return 'ArrowUp';
+        }
+        if (currentTileId + 40 === id) {
+          return 'ArrowDown';
+        }
+      }
+
+      function CheckForActions() {
+        const { currentTileId, playerTurn } = GlobalState;
+
+        const surroundingTiles = [
+          currentTileId - 1,
+          currentTileId + 1,
+          currentTileId - 40,
+          currentTileId + 40,
+        ]
+          .map((id) => ({
+            tileElement: document.getElementById(`tile-${id}`),
+            direction: MapDirection(id),
+          }))
+          .filter((tile) => !!tile.tileElement);
+
+        const enemyTiles = surroundingTiles.filter(
+          ({ tileElement, direction }) => {
+            console.log(tileElement);
+            const unit = GetUnitFormElement(tileElement);
+            if (unit) {
+              if (Number(unit.getAttribute('player')) !== playerTurn) {
+                return true;
+              }
+              return false;
+            }
+            return false;
+          }
+        );
+
+        console.log(enemyTiles);
+
+        //const UnitActions = (event) => {};
+      }
+    </script>
+
+    <script>
+      /* Combat Logic */
     </script>
 
     <script>
@@ -504,6 +569,7 @@
               hasMoved: true,
               flipped: GlobalState.playerTurn === 2,
             });
+            CheckForActions();
             ResetSelectedTile();
             return;
           } else {
@@ -563,9 +629,9 @@
       ];
 
       const startPositionsPlayer2 = [
-        { tile: '306', unit: new Unit('infantry') },
-        { tile: '307', unit: new Unit('tank') },
-        { tile: '305', unit: new Unit('rpg') },
+        { tile: '106', unit: new Unit('infantry') },
+        { tile: '107', unit: new Unit('tank') },
+        { tile: '105', unit: new Unit('rpg') },
       ];
 
       startPositionsPlayer1.forEach(({ tile, unit }) => {
