@@ -392,6 +392,7 @@
       }
 
       function ResetSelectedTile() {
+        console.log('Reset selected tile');
         GlobalState.currentSelectedUnitTile = null;
         GlobalState.currentTileId = null;
         GlobalState.currentSelectedUnitElement = null;
@@ -519,7 +520,7 @@
         RemoveUnitActionModalEvents();
         CloseUnitActionModal();
         Attack();
-        RemoveUnitElement();
+        //RemoveUnitElement();
         AddUnitElement({
           hasMoved: true,
           canMove: false,
@@ -532,7 +533,7 @@
         console.log('No attack');
         RemoveUnitActionModalEvents();
         CloseUnitActionModal();
-        RemoveUnitElement();
+        //RemoveUnitElement();
         AddUnitElement({
           hasMoved: true,
           canMove: false,
