@@ -9,7 +9,11 @@
       <button id="end-turn" class="stats-button">End turn</button>
     </div>
     <div id="map" class="grid-container"></div>
-    <div id="unit-action-modal" class="hidden"></div>
+    <div id="unit-action-modal" class="hidden">
+      <div class="unit-action-modal__option">Attack</div>
+      <div class="delimeter"></div>
+      <div class="unit-action-modal__option">No Attack</div>
+    </div>
 
     <script>
       /* Terrain Generation */
@@ -334,12 +338,13 @@
         GlobalState.currentSelectedUnitElement = unitElement;
 
         GlobalState.currentSelectedUnitTile.removeChild(unitElement);
+        console.log('Remove unit element');
       }
 
       function AddUnitElement(settings = {}) {
-        const { currentTileId, currentSelectedUnitTile, units, playerTurn } =
-          GlobalState;
-        const terrainElement = document.getElementById(`tile-${currentTileId}`);
+        const { currentTileId, units, playerTurn } = GlobalState;
+        const terrainElement =
+          settings.tile || document.getElementById(`tile-${currentTileId}`);
         const unitElement = GlobalState.currentSelectedUnitElement;
         const id = unitElement.id;
 
@@ -459,7 +464,76 @@
         }
       }
 
-      const UnitActions = (event) => {
+      function RemoveUnitActionModalEvents() {
+        document.removeEventListener('keydown', UnitActionModalEvents);
+
+        const modal = document.getElementById('unit-action-modal');
+
+        const actions = modal.querySelectorAll('div.unit-action-modal__option');
+
+        const attack = actions[0];
+        const noAttack = actions[1];
+
+        attack.removeEventListener('click', Attack);
+        noAttack.removeEventListener('click', NoAttack);
+      }
+
+      function CloseUnitActionModal() {
+        RemoveUnitActionModalEvents();
+        ChangeTargetEnemy();
+
+        const modal = document.getElementById('unit-action-modal');
+
+        modal.classList.add('hidden');
+      }
+
+      const UnitActionModalEvents = (event) => {
+        const { key } = event;
+        console.log(key);
+        if (key === 'Escape') {
+          CloseUnitActionModal();
+        }
+
+        if (key === 'Enter') {
+          RemoveUnitActionModalEvents();
+          Attack();
+        }
+      };
+
+      const Attack = () => {
+        console.log('Attack!');
+        RemoveUnitActionModalEvents();
+      };
+
+      const NoAttack = () => {
+        console.log('No attack :');
+        RemoveUnitActionModalEvents();
+      };
+
+      function OpenUnitActionModal() {
+        const { currentTileId, adjacentEnemyTiles } = GlobalState;
+        const currentTile = document.getElementById(`tile-${currentTileId}`);
+
+        document.getElementById('map').style.overflow = 'hidden';
+
+        const modal = document.getElementById('unit-action-modal');
+        modal.classList.remove('hidden');
+
+        const rect = currentTile.getBoundingClientRect();
+        modal.style.left = rect.left + 50 + 'px';
+        modal.style.top = rect.top + 50 + 'px';
+
+        const actions = modal.querySelectorAll('div.unit-action-modal__option');
+
+        const attack = actions[0];
+        const noAttack = actions[1];
+
+        attack.addEventListener('click', Attack);
+        noAttack.addEventListener('click', NoAttack);
+        document.addEventListener('keydown', UnitActionModalEvents);
+      }
+
+      function ChangeTargetEnemy() {
         const { key } = event;
         const { adjacentEnemyTiles } = GlobalState;
         const actions = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
@@ -473,30 +547,63 @@
             adjacentEnemyTiles.forEach(({ tileElement }) => {
               tileElement
                 .querySelector('.path')
-                .classList.remove('path__highlighted'); // Change to image later
+                .classList.remove('path__highlighted--attack'); // Change to image later
             });
 
             enemyTile.tileElement
               .querySelector('.path')
-              .classList.add('path__highlighted'); // Change to image later
+              .classList.add('path__highlighted--attack'); // Change to image later
+
+            GlobalState.targetEnemyUnitTile = GetUnitFromElement(
+              enemyTile.tileElement
+            );
           }
         }
-      };
 
-      function OpenUnitActionModal() {
-        const { currentTileId } = GlobalState;
+        if (key === 'Enter') {
+          document.removeEventListener('keydown', ChangeTargetEnemy);
+          OpenUnitActionModal();
+          return;
+        }
+
+        if (key === 'Escape') {
+          document.removeEventListener('keydown', ChangeTargetEnemy);
+
+          adjacentEnemyTiles.forEach(({ tileElement }) => {
+            tileElement
+              .querySelector('.path')
+              .classList.remove('path__highlighted--attack'); // Change to image later
+          });
+
+          AddUnitElement({
+            tile: GlobalState.currentSelectedUnitTile,
+            flipped: GlobalState.playerTurn === 2,
+            hasMoved: false,
+            canMove: true,
+          });
+
+          ResetSelectedTile();
+        }
+      }
+
+      function SelectTargetEnemy() {
+        const { currentTileId, adjacentEnemyTiles } = GlobalState;
         const currentTile = document.getElementById(`tile-${currentTileId}`);
 
         document.getElementById('map').style.overflow = 'hidden';
 
-        const modal = document.getElementById('unit-action-modal');
-        modal.classList.remove('hidden');
+        const firstEnemy = adjacentEnemyTiles[0];
+        firstEnemy.tileElement
+          .querySelector('.path')
+          .classList.add('path__highlighted--attack');
 
-        const rect = currentTile.getBoundingClientRect();
-        modal.style.left = rect.left + 50 + 'px';
-        modal.style.top = rect.top + 50 + 'px';
+        GlobalState.targetEnemyUnitTile = firstEnemy.tileElement;
 
-        document.addEventListener('keydown', UnitActions);
+        if (adjacentEnemyTiles.length > 1) {
+          document.addEventListener('keydown', ChangeTargetEnemy);
+        } else {
+          OpenUnitActionModal();
+        }
       }
 
       function AdjacentEnemyUnits() {
@@ -548,6 +655,7 @@
         currentSelectedUnitTile: null, // element
         currentSelectedUnitElement: null,
         adjacentEnemyTiles: [],
+        targetEnemyUnitTile: null,
         units: { 1: {}, 2: {}, 3: {}, 4: {} },
         turn: 1,
         playerTurn: 1,
@@ -610,13 +718,18 @@
           if (GlobalState.path.length > 1) {
             RemoveUnitElement();
             ResetPath();
-            AddUnitElement({
-              hasMoved: true,
-              flipped: GlobalState.playerTurn === 2,
-            });
+
             if (AdjacentEnemyUnits()) {
-              OpenUnitActionModal();
+              AddUnitElement({
+                hasMoved: false,
+                flipped: GlobalState.playerTurn === 2,
+              });
+              SelectTargetEnemy();
             } else {
+              AddUnitElement({
+                hasMoved: true,
+                flipped: GlobalState.playerTurn === 2,
+              });
               ResetSelectedTile();
             }
 
@@ -663,7 +776,6 @@
         GlobalState.currentSelectedUnitTile
           .querySelector('.path')
           .classList.add('path__highlighted');
-        //GlobalState.currentSelectedUnitTile.style.backgroundColor = 'purple';
 
         document.addEventListener('keydown', EventListener);
       };
@@ -672,13 +784,13 @@
     <script>
       /* Initial values */
       const startPositionsPlayer1 = [
-        { tile: '83', unit: new Unit('infantry') },
+        { tile: '84', unit: new Unit('infantry') },
         { tile: '123', unit: new Unit('tank') },
         { tile: '162', unit: new Unit('rpg') },
       ];
 
       const startPositionsPlayer2 = [
-        { tile: '85', unit: new Unit('infantry') },
+        { tile: '86', unit: new Unit('infantry') },
         { tile: '128', unit: new Unit('tank') },
         { tile: '129', unit: new Unit('rpg') },
       ];

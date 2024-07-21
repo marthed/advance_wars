@@ -77,7 +77,12 @@ body {
 }
 
 .path__highlighted {
-  background-color: rgba(128, 0, 128, 0.441);
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 2;
+}
+
+.path__highlighted--attack {
+  background-color: rgba(179, 12, 12, 0.5);
   z-index: 2;
 }
 
@@ -172,4 +177,15 @@ body {
   padding: 4px;
   background-color: rgba(255, 255, 255, 0.5);
   z-index: 9000;
+  cursor:pointer;
+}
+
+.unit-action-modal__option {
+  text-align: center;
+  margin: 6 2 6 2;
+  cursor: pointer;
+}
+
+.delimeter {
+  border-bottom: 1px solid black;
 }
