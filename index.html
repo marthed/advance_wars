@@ -9,6 +9,7 @@
       <button id="end-turn" class="stats-button">End turn</button>
     </div>
     <div id="map" class="grid-container"></div>
+    <div id="unit-action-modal" class="hidden"></div>
 
     <script>
       /* Terrain Generation */
@@ -427,7 +428,7 @@
         });
       }
 
-      function GetUnitFormElement(element) {
+      function GetUnitFromElement(element) {
         return element.querySelector('div.unit');
       }
 
@@ -458,7 +459,47 @@
         }
       }
 
-      function CheckForActions() {
+      const UnitActions = (event) => {
+        const { key } = event;
+        const { adjacentEnemyTiles } = GlobalState;
+        const actions = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+
+        if (actions.find((command) => command === key)) {
+          const enemyTile = adjacentEnemyTiles.find(
+            (tile) => tile.direction === key
+          );
+
+          if (enemyTile) {
+            adjacentEnemyTiles.forEach(({ tileElement }) => {
+              tileElement
+                .querySelector('.path')
+                .classList.remove('path__highlighted'); // Change to image later
+            });
+
+            enemyTile.tileElement
+              .querySelector('.path')
+              .classList.add('path__highlighted'); // Change to image later
+          }
+        }
+      };
+
+      function OpenUnitActionModal() {
+        const { currentTileId } = GlobalState;
+        const currentTile = document.getElementById(`tile-${currentTileId}`);
+
+        document.getElementById('map').style.overflow = 'hidden';
+
+        const modal = document.getElementById('unit-action-modal');
+        modal.classList.remove('hidden');
+
+        const rect = currentTile.getBoundingClientRect();
+        modal.style.left = rect.left + 50 + 'px';
+        modal.style.top = rect.top + 50 + 'px';
+
+        document.addEventListener('keydown', UnitActions);
+      }
+
+      function AdjacentEnemyUnits() {
         const { currentTileId, playerTurn } = GlobalState;
 
         const surroundingTiles = [
@@ -475,8 +516,7 @@
 
         const enemyTiles = surroundingTiles.filter(
           ({ tileElement, direction }) => {
-            console.log(tileElement);
-            const unit = GetUnitFormElement(tileElement);
+            const unit = GetUnitFromElement(tileElement);
             if (unit) {
               if (Number(unit.getAttribute('player')) !== playerTurn) {
                 return true;
@@ -487,9 +527,13 @@
           }
         );
 
-        console.log(enemyTiles);
+        if (!enemyTiles.length) {
+          return false;
+        }
 
-        //const UnitActions = (event) => {};
+        GlobalState.adjacentEnemyTiles = enemyTiles;
+
+        return true;
       }
     </script>
 
@@ -503,6 +547,7 @@
         currentTileId: null, // number
         currentSelectedUnitTile: null, // element
         currentSelectedUnitElement: null,
+        adjacentEnemyTiles: [],
         units: { 1: {}, 2: {}, 3: {}, 4: {} },
         turn: 1,
         playerTurn: 1,
@@ -569,8 +614,12 @@
               hasMoved: true,
               flipped: GlobalState.playerTurn === 2,
             });
-            CheckForActions();
-            ResetSelectedTile();
+            if (AdjacentEnemyUnits()) {
+              OpenUnitActionModal();
+            } else {
+              ResetSelectedTile();
+            }
+
             return;
           } else {
             DeselectUnit();
@@ -623,15 +672,15 @@
     <script>
       /* Initial values */
       const startPositionsPlayer1 = [
-        { tile: '20', unit: new Unit('infantry') },
-        { tile: '56', unit: new Unit('tank') },
-        { tile: '58', unit: new Unit('rpg') },
+        { tile: '83', unit: new Unit('infantry') },
+        { tile: '123', unit: new Unit('tank') },
+        { tile: '162', unit: new Unit('rpg') },
       ];
 
       const startPositionsPlayer2 = [
-        { tile: '106', unit: new Unit('infantry') },
-        { tile: '107', unit: new Unit('tank') },
-        { tile: '105', unit: new Unit('rpg') },
+        { tile: '85', unit: new Unit('infantry') },
+        { tile: '128', unit: new Unit('tank') },
+        { tile: '129', unit: new Unit('rpg') },
       ];
 
       startPositionsPlayer1.forEach(({ tile, unit }) => {

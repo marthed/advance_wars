@@ -8,10 +8,8 @@ body {
 }
 
 .main-container {
-  display: flex;
-  flex-direction: column;
+  position: relative;
   width: 100%;
-  overflow: auto;
 }
 
 .grid-container {
@@ -157,4 +155,21 @@ body {
 
 .hasMoved {
   filter: brightness(50%);
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+#unit-action-modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  min-height: 50px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 9000;
 }
