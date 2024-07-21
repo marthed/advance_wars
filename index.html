@@ -480,10 +480,9 @@
 
       function CloseUnitActionModal() {
         RemoveUnitActionModalEvents();
-        ChangeTargetEnemy();
+        ResetTargetEnemy();
 
         const modal = document.getElementById('unit-action-modal');
-
         modal.classList.add('hidden');
       }
 
@@ -492,10 +491,10 @@
         console.log(key);
         if (key === 'Escape') {
           CloseUnitActionModal();
+          SelectTargetEnemy();
         }
 
         if (key === 'Enter') {
-          RemoveUnitActionModalEvents();
           Attack();
         }
       };
@@ -506,7 +505,7 @@
       };
 
       const NoAttack = () => {
-        console.log('No attack :');
+        console.log('No attack');
         RemoveUnitActionModalEvents();
       };
 
@@ -533,6 +532,16 @@
         document.addEventListener('keydown', UnitActionModalEvents);
       }
 
+      function ResetTargetEnemy() {
+        const { adjacentEnemyTiles } = GlobalState;
+
+        adjacentEnemyTiles.forEach(({ tileElement }) => {
+          tileElement
+            .querySelector('.path')
+            .classList.remove('path__highlighted--attack'); // Change to image later
+        });
+      }
+
       function ChangeTargetEnemy() {
         const { key } = event;
         const { adjacentEnemyTiles } = GlobalState;
@@ -544,11 +553,7 @@
           );
 
           if (enemyTile) {
-            adjacentEnemyTiles.forEach(({ tileElement }) => {
-              tileElement
-                .querySelector('.path')
-                .classList.remove('path__highlighted--attack'); // Change to image later
-            });
+            ResetTargetEnemy();
 
             enemyTile.tileElement
               .querySelector('.path')
