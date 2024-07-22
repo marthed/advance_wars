@@ -698,6 +698,7 @@
       /* Combat Logic */
 
       function TerrainBonus(terrainType) {
+        console.log('Terrain type: ' + terrainType);
         if (terrainType === 'field') {
           return 1.25;
         }
@@ -751,13 +752,13 @@
           if (defenceUnit.type === 'infantry') {
             CalculateHitPoints(
               { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 40, defenceTerrain }
+              { defenceUnit, defenderStength: 50, defenceTerrain }
             );
           }
           if (defenceUnit.type === 'rpg') {
             CalculateHitPoints(
               { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 40, defenceTerrain }
+              { defenceUnit, defenderStength: 50, defenceTerrain }
             );
           }
           if (defenceUnit.type === 'tank') {
@@ -772,13 +773,13 @@
           if (defenceUnit.type === 'infantry') {
             CalculateHitPoints(
               { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 40, defenceTerrain }
+              { defenceUnit, defenderStength: 50, defenceTerrain }
             );
           }
           if (defenceUnit.type === 'rpg') {
             CalculateHitPoints(
               { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 40, defenceTerrain }
+              { defenceUnit, defenderStength: 50, defenceTerrain }
             );
           }
           if (defenceUnit.type === 'tank') {
@@ -799,13 +800,13 @@
           if (defenceUnit.type === 'rpg') {
             CalculateHitPoints(
               { attackUnit, attackerStength: 80, attackTerrain },
-              { defenceUnit, defenderStength: 50, defenceTerrain }
+              { defenceUnit, defenderStength: 70, defenceTerrain }
             );
           }
           if (defenceUnit.type === 'tank') {
             CalculateHitPoints(
               { attackUnit, attackerStength: 60, attackTerrain },
-              { defenceUnit, defenderStength: 40, defenceTerrain }
+              { defenceUnit, defenderStength: 50, defenceTerrain }
             );
           }
         }
@@ -828,19 +829,24 @@
         const { attackUnit, attackerStength, attackTerrain } = a;
         const { defenceUnit, defenderStength, defenceTerrain } = d;
 
-        const attackerDamage = (attackerStength / attackUnit.hitPoints) * 100;
+        const attackerDamage = attackerStength * (attackUnit.hitPoints / 100);
+        const attackerDamageAfterTerrain =
+          attackerDamage / TerrainBonus(defenceTerrain);
 
         defenceUnit.hitPoints =
-          defenceUnit.hitPoints -
-          Math.max(attackerDamage / TerrainBonus(defenceTerrain), 0);
+          defenceUnit.hitPoints - attackerDamageAfterTerrain;
 
         if (defenceUnit.hitPoints > 0) {
+          console.log(defenderStength / defenceUnit.hitPoints);
+
           const defenderDamage =
-            (defenderStength / defenceUnit.hitPoints) * 100;
+            defenderStength * (defenceUnit.hitPoints / 100);
+
+          const defenderDamageAfterTerrain =
+            defenderDamage / TerrainBonus(attackTerrain);
 
           attackUnit.hitPoints =
-            attackUnit.hitPoints -
-            Math.max(defenderDamage / TerrainBonus(attackTerrain), 0);
+            attackUnit.hitPoints - defenderDamageAfterTerrain;
         }
       }
     </script>
