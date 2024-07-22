@@ -269,6 +269,10 @@
         return terrainElement.querySelector(`div.unit`)?.id;
       }
 
+      function GetTileId(terrainElement) {
+        return Number(terrainElement.id.split('-')[1]);
+      }
+
       function GetTerrainType(terrainElement) {
         const terrain = Array.from(terrainElement.classList)
           .find((c) => c.split('-')[0] === 'terrain')
@@ -346,7 +350,11 @@
       }
 
       function TileIsOccupied(elem) {
-        return !!GetUnitIDFromTerrainElement(elem);
+        const selectedUnitId = GlobalState.currentSelectedUnitElement.id;
+
+        const idOnTile = GetUnitIDFromTerrainElement(elem);
+
+        return idOnTile && idOnTile !== selectedUnitId;
       }
 
       function AddPath(key, nextTileElem) {
@@ -544,7 +552,6 @@
       };
 
       const NoAttack = () => {
-        console.log('No attack');
         RemoveUnitActionModalEvents();
         CloseUnitActionModal();
         //RemoveUnitElement();
@@ -714,7 +721,6 @@
       /* Combat Logic */
 
       function TerrainBonus(terrainType) {
-        console.log('Terrain type: ' + terrainType);
         if (terrainType === 'field') {
           return 1.25;
         }
@@ -740,7 +746,6 @@
       }
 
       function Attack() {
-        console.log('ATTACK!');
         const {
           currentSelectedUnitElement,
           currentSelectedUnitTile,
@@ -853,8 +858,6 @@
           defenceUnit.hitPoints - attackerDamageAfterTerrain;
 
         if (defenceUnit.hitPoints > 0) {
-          console.log(defenderStength / defenceUnit.hitPoints);
-
           const defenderDamage =
             defenderStength * (defenceUnit.hitPoints / 100);
 
@@ -918,12 +921,10 @@
           }
 
           if (!CanMoveInTerrain(nextTileElem)) {
-            console.log('Unit cant move in this terrain');
             return;
           }
 
           if (ReachedMovementRange()) {
-            console.log('Out of range');
             return;
           }
 
@@ -941,28 +942,26 @@
             return;
           }
 
-          if (GlobalState.path.length > 1) {
-            RemoveUnitElement();
-            ResetPath();
+          RemoveUnitElement();
+          ResetPath();
 
-            if (AdjacentEnemyUnits()) {
-              AddUnitElement({
-                hasMoved: false,
-                flipped: GlobalState.playerTurn === 2,
-              });
-              SelectTargetEnemy();
-            } else {
-              AddUnitElement({
-                hasMoved: true,
-                flipped: GlobalState.playerTurn === 2,
-              });
-              ResetSelectedTile();
-            }
-
-            return;
+          if (AdjacentEnemyUnits()) {
+            AddUnitElement({
+              hasMoved: false,
+              flipped: GlobalState.playerTurn === 2,
+            });
+            SelectTargetEnemy();
           } else {
-            DeselectUnit();
+            AddUnitElement({
+              hasMoved: true,
+              flipped: GlobalState.playerTurn === 2,
+            });
+            ResetSelectedTile();
           }
+
+          return;
+        } else {
+          DeselectUnit();
         }
 
         if (key === 'Escape') {
@@ -992,6 +991,7 @@
         GlobalState.currentSelectedUnitTile = target;
         GlobalState.currentSelectedUnitElement =
           target.querySelector('div.unit');
+        GlobalState.currentTileId = GetTileId(target);
 
         target.removeEventListener('mousedown', SelectUnit);
 
