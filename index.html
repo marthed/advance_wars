@@ -161,12 +161,19 @@
             directDefense: false,
           };
         }
+        if (type === 'battleship') {
+          return {
+            movementRange: 5,
+            canMoveInTerrain: ['water'],
+            directAttack: false,
+            directDefense: false,
+          };
+        }
 
         return { movementRange: 0, canMoveInTerrain: [] };
       }
 
       function SetHitPoints(unit) {
-        console.log('🚀 ~ SetHitPoints ~ unit:', unit);
         const unitElement = unit.tileElement.querySelector('div.unit');
         const hp = unitElement.querySelector('span.hp');
         hp.innerHTML = unit.hitPoints;
@@ -353,7 +360,6 @@
         GlobalState.currentSelectedUnitElement = unitElement;
 
         GlobalState.currentSelectedUnitTile.removeChild(unitElement);
-        console.log('Remove unit element');
       }
 
       function AddUnitElement(settings = {}) {
@@ -392,7 +398,6 @@
       }
 
       function ResetSelectedTile() {
-        console.log('Reset selected tile');
         GlobalState.currentSelectedUnitTile = null;
         GlobalState.currentTileId = null;
         GlobalState.currentSelectedUnitElement = null;
@@ -450,7 +455,6 @@
       }
 
       function GetUnitFromElement(element) {
-        console.log(element.querySelector('div.unit'));
         return element.querySelector('div.unit');
       }
 
@@ -505,7 +509,6 @@
 
       const UnitActionModalEvents = (event) => {
         const { key } = event;
-        console.log(key);
         if (key === 'Escape') {
           CloseUnitActionModal();
           SelectTargetEnemy();
@@ -521,11 +524,14 @@
         CloseUnitActionModal();
         Attack();
         //RemoveUnitElement();
-        AddUnitElement({
-          hasMoved: true,
-          canMove: false,
-          flipped: GlobalState.playerTurn === 2,
-        });
+        if (GlobalState.currentSelectedUnitElement) {
+          AddUnitElement({
+            hasMoved: true,
+            canMove: false,
+            flipped: GlobalState.playerTurn === 2,
+          });
+        }
+
         ResetSelectedTile();
       };
 
@@ -698,6 +704,16 @@
         }
       }
 
+      function UnitDeath(unit, player) {
+        const unitElement = unit.tileElement.querySelector('div.unit');
+
+        unit.tileElement.removeChild(unitElement);
+
+        delete GlobalState.units[player][unit.id];
+
+        // TODO: Do some animation
+      }
+
       function Attack() {
         console.log('ATTACK!');
         const {
@@ -786,8 +802,18 @@
           }
         }
 
-        SetHitPoints(attackUnit);
-        SetHitPoints(defenceUnit);
+        if (attackUnit.hitPoints < 1) {
+          ResetSelectedTile();
+          UnitDeath(attackUnit, playerTurn);
+        } else {
+          SetHitPoints(attackUnit);
+        }
+
+        if (defenceUnit.hitPoints < 1) {
+          UnitDeath(defenceUnit, enemyElement.getAttribute('player'));
+        } else {
+          SetHitPoints(defenceUnit);
+        }
       }
 
       function CalculateHitPoints(a, d) {
@@ -871,6 +897,7 @@
         }
 
         if (key === 'Enter') {
+          console.log('ENTER');
           if (GlobalState.path.length > 1) {
             RemoveUnitElement();
             ResetPath();
@@ -948,6 +975,7 @@
         { tile: '86', unit: new Unit('infantry') },
         { tile: '128', unit: new Unit('tank') },
         { tile: '129', unit: new Unit('rpg') },
+        { tile: '455', unit: new Unit('battleship') },
       ];
 
       startPositionsPlayer1.forEach(({ tile, unit }) => {
