@@ -692,6 +692,22 @@
 
         return true;
       }
+
+      function EnemyUnitBlocking(nextTile) {
+        const unitElement = nextTile.querySelector('div.unit');
+
+        if (!unitElement) {
+          return false;
+        }
+
+        const player = unitElement.getAttribute('player');
+
+        if (Number(player) === Number(GlobalState.playerTurn)) {
+          return false;
+        }
+
+        return true;
+      }
     </script>
 
     <script>
@@ -897,8 +913,7 @@
             return;
           }
 
-          if (TileIsOccupied(nextTileElem)) {
-            console.log('Tile is occupied');
+          if (EnemyUnitBlocking(nextTileElem)) {
             return;
           }
 
@@ -918,7 +933,14 @@
         }
 
         if (key === 'Enter') {
-          console.log('ENTER');
+          const currentTile = document.getElementById(
+            `tile-${GlobalState.currentTileId}`
+          );
+
+          if (TileIsOccupied(currentTile)) {
+            return;
+          }
+
           if (GlobalState.path.length > 1) {
             RemoveUnitElement();
             ResetPath();
