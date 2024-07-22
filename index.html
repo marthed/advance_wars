@@ -176,7 +176,16 @@
       function SetHitPoints(unit) {
         const unitElement = unit.tileElement.querySelector('div.unit');
         const hp = unitElement.querySelector('span.hp');
-        hp.innerHTML = unit.hitPoints;
+
+        const hitPoints = Math.round(Number(unit.hitPoints));
+
+        if (hitPoints === 100) {
+          hp.innerHTML = String(hitPoints);
+        } else if (hitPoints > 9) {
+          hp.innerHTML = String(hitPoints).substring(0, 2);
+        } else {
+          hp.innerHTML = String(hitPoints);
+        }
       }
 
       function CreateUnitElement(unit, player) {
@@ -189,7 +198,6 @@
         const hpElement = document.createElement('span');
         hpElement.classList.add('hp');
         hpElement.style.zIndex = '2';
-        hpElement.innerHTML = unit.hitPoints;
 
         const color = GlobalState.playerColors[player];
         hpElement.classList.add(`color-${color}`);
@@ -691,16 +699,16 @@
 
       function TerrainBonus(terrainType) {
         if (terrainType === 'field') {
-          return 1;
+          return 1.25;
         }
         if (terrainType === 'forest') {
-          return 2;
+          return 1.5;
         }
         if (terrainType === 'mountain') {
-          return 4;
+          return 2;
         }
         if (terrainType === 'water') {
-          return 0;
+          return 1;
         }
       }
 
@@ -820,13 +828,20 @@
         const { attackUnit, attackerStength, attackTerrain } = a;
         const { defenceUnit, defenderStength, defenceTerrain } = d;
 
-        attackUnit.hitPoints =
-          attackUnit.hitPoints -
-          Math.max(defenderStength - TerrainBonus(attackTerrain), 0);
+        const attackerDamage = (attackerStength / attackUnit.hitPoints) * 100;
 
         defenceUnit.hitPoints =
           defenceUnit.hitPoints -
-          Math.max(attackerStength - TerrainBonus(defenceTerrain), 0);
+          Math.max(attackerDamage / TerrainBonus(defenceTerrain), 0);
+
+        if (defenceUnit.hitPoints > 0) {
+          const defenderDamage =
+            (defenderStength / defenceUnit.hitPoints) * 100;
+
+          attackUnit.hitPoints =
+            attackUnit.hitPoints -
+            Math.max(defenderDamage / TerrainBonus(attackTerrain), 0);
+        }
       }
     </script>
 
@@ -984,6 +999,9 @@
         const unitElement = CreateUnitElement(unit, 1);
 
         terrainElement.appendChild(unitElement);
+        unit.tileElement = terrainElement;
+        SetHitPoints(unit);
+
         GlobalState.units[1][unit.id] = unit;
 
         terrainElement.addEventListener('mousedown', SelectUnit);
@@ -995,6 +1013,9 @@
         const unitElement = CreateUnitElement(unit, 2);
 
         terrainElement.appendChild(unitElement);
+        unit.tileElement = terrainElement;
+        SetHitPoints(unit);
+
         GlobalState.units[2][unit.id] = unit;
         unit.tileElement = terrainElement;
         //terrainElement.addEventListener('mousedown', SelectUnit);
