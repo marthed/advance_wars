@@ -4,8 +4,8 @@
   </head>
   <body>
     <div id="stats" class="stats">
-      <div id="stats-day" class="stats-item">Day: 1</div>
-      <div id="stats-player" class="stats-item">Player 1</div>
+      <div id="stats-day" class="stats-item">DAY: 1</div>
+      <div id="stats-player" class="stats-item">PLAYER 1</div>
       <button id="end-turn" class="stats-button">End turn</button>
     </div>
     <div id="map" class="grid-container"></div>
@@ -523,6 +523,8 @@
           }
         });
 
+        const previousPlayer = GlobalState.playerTurn;
+
         // Update the player turn
         if (playerTurn === numberOfPlayers) {
           GlobalState.turn++;
@@ -533,9 +535,19 @@
 
         // Update the stats display
         document.getElementById('stats-day').innerHTML =
-          'Day: ' + GlobalState.turn;
+          'DAY ' + GlobalState.turn;
         document.getElementById('stats-player').innerHTML =
-          'Player ' + GlobalState.playerTurn;
+          'PLAYER ' + GlobalState.playerTurn;
+
+        const previousColor = GlobalState.playerColors[previousPlayer];
+        const newColor = GlobalState.playerColors[GlobalState.playerTurn];
+
+        document
+          .getElementById('stats-player')
+          .classList.remove(`color-${previousColor}`);
+        document
+          .getElementById('stats-player')
+          .classList.add(`color-${newColor}`);
 
         // Add event listeners for the new player's units
         Object.keys(units[GlobalState.playerTurn]).forEach((id) => {
@@ -1088,6 +1100,12 @@
         { tile: '131', unit: new Unit('rpg') },
         { tile: '455', unit: new Unit('battleship') },
       ];
+
+      document
+        .getElementById('stats-player')
+        .classList.add(
+          `color-${GlobalState.playerColors[GlobalState.playerTurn]}`
+        );
 
       startPositionsPlayer1.forEach(({ tile, unit }) => {
         const terrainElement = document.getElementById(`tile-${tile}`);
