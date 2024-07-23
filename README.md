@@ -7,4 +7,4 @@
 * Click "End Turn" in the header to switch player
 
 
-![Example Image](https://github.com/marthed/advance_wars/media/map.png)
+![Example Image](https://github.com/marthed/advance_wars/blob/main/media/map.png)
