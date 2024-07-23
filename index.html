@@ -37,12 +37,42 @@
 
     <script>
       /* Terrain Generation */
-      function CreateTerrainImage(terrainType) {
+      function CreateTerrainImage(terrainType, config = {}) {
         const img = document.createElement('img');
+        img.classList.add('terrain-image');
+
+        if (terrainType === 'road') {
+          const { road } = config;
+
+          if (road === 'horizontal') {
+            img.src = 'terrain/road_straight.png';
+          } else if (road === 'vertical') {
+            img.src = 'terrain/road_straight.png';
+            img.classList.add('rotate-90');
+          } else if (road === 'right-up') {
+            console.log('right-up');
+            img.src = 'terrain/road_curved.png';
+          } else if (road === 'left-up') {
+            console.log('left-up');
+            img.src = 'terrain/road_curved.png';
+            img.classList.add('rotate--90');
+          } else if (road === 'right-down') {
+            console.log('right-down');
+            img.src = 'terrain/road_curved.png';
+            img.classList.add('rotate--90');
+          } else if (road === 'left-down') {
+            console.log('left-down');
+            img.src = 'terrain/road_curved.png';
+            img.classList.add('rotate-180');
+          } else {
+            img.src = 'terrain/road_straight.png';
+          }
+
+          return img;
+        }
 
         img.src = `terrain/${terrainType}.png`;
-        img.classList.add('terrain-image');
-        //img.classList.add(`terrain-${terrainType}`);
+
         return img;
       }
     </script>
@@ -82,6 +112,118 @@
         }
       }
 
+      const roadMappings = [
+        160, 161, 162, 163, 164, 165, 205, 245, 246, 247, 248, 249, 250, 251,
+        252, 212, 172, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 101,
+        61, 21,
+      ];
+
+      function CreateRoad(tile) {
+        const tileIndex = Number(tile.id.split('-')[1]);
+        tile.classList.add('terrain-road');
+
+        const roadMappingIndex = roadMappings.indexOf(tileIndex);
+
+        const surroundingTiles = [
+          tileIndex - 1,
+          tileIndex + 1,
+          tileIndex - 40,
+          tileIndex + 40,
+        ];
+
+        const previous = roadMappings[roadMappingIndex - 1];
+        const next = roadMappings[roadMappingIndex + 1];
+
+        const previousTileID = surroundingTiles.find(
+          (tileId) => previous === tileId
+        );
+        const nextTileID = surroundingTiles.find((tileId) => next === tileId);
+
+        let img;
+
+        if (!previousTileID && !nextTileID) {
+          img = CreateTerrainImage('road', { road: 'horizontal' });
+        } else if (
+          (previousTileID && !nextTileID) ||
+          (!previousTileID && nextTileID)
+        ) {
+          const diff =
+            tileIndex - (previousTileID ? previousTileID : nextTileID);
+          if (diff === 1 || diff === -1) {
+            img = CreateTerrainImage('road', { road: 'horizontal' });
+          } else if (diff === 40 || diff === -40) {
+            img = CreateTerrainImage('road', { road: 'vertical' });
+          }
+        } else {
+          const diffPrevious = tileIndex - previousTileID;
+          const diffNext = tileIndex - nextTileID;
+          const modify = GetRoadDirection(diffPrevious, diffNext);
+
+          img = CreateTerrainImage('road', { road: modify });
+        }
+
+        // horizontal
+        // vertical
+        // up-left
+        // up- right
+        // down - left
+        // down - right
+
+        tile.appendChild(img);
+      }
+
+      function GetRoadDirection(previous, next) {
+        if (previous === 1) {
+          if (next === -1) {
+            return 'horizontal';
+          }
+
+          if (next === -40) {
+            return 'left-down';
+          }
+
+          if (next === 40) {
+            return 'left-up';
+          }
+        } else if (previous === -1) {
+          if (next === 1) {
+            return 'horizontal';
+          }
+
+          if (next === -40) {
+            return 'right-up';
+          }
+
+          if (next === 40) {
+            return 'right-down';
+          }
+        } else if (previous === 40) {
+          if (next === 1) {
+            return 'left-up';
+          }
+
+          if (next === -1) {
+            return 'right-up';
+          }
+
+          if (next === -40) {
+            return 'vertical';
+          }
+        } else if (previous === -40) {
+          if (next === 1) {
+            return 'left-down';
+          }
+
+          if (next === -1) {
+            return 'right-down';
+          }
+
+          if (next === 40) {
+            return 'vertical';
+          }
+        }
+      }
+
       function GenerateNewTerrain(size) {
         const serializableTerrainMap = [];
 
@@ -90,29 +232,35 @@
           element.classList.add('grid-item');
           element.id = 'tile-' + i;
 
-          if (i < size / 2) {
-            if (Math.random() < 0.2) {
-              element.classList.add('terrain-forest');
-              const img = CreateTerrainImage('forest');
-              element.appendChild(img);
-              serializableTerrainMap.push('forest');
-            } else if (Math.random() < 0.1) {
-              element.classList.add('terrain-mountain');
-              const img = CreateTerrainImage('mountain');
-              element.appendChild(img);
-              serializableTerrainMap.push('mountain');
-            } else {
-              element.classList.add('terrain-field');
-              const img = CreateTerrainImage('field');
-              element.appendChild(img);
-              serializableTerrainMap.push('field');
-            }
+          const roadIndex = roadMappings.find((tileIndex) => tileIndex === i);
+          if (roadIndex) {
+            CreateRoad(element);
+            serializableTerrainMap.push('road');
           } else {
-            element.classList.add('terrain-water');
-            const img = CreateTerrainImage('water');
-            element.appendChild(img);
-            GlobalState.terrain.waterTiles.push(img);
-            serializableTerrainMap.push('water');
+            if (i < size / 2) {
+              if (Math.random() < 0.2) {
+                element.classList.add('terrain-forest');
+                const img = CreateTerrainImage('forest');
+                element.appendChild(img);
+                serializableTerrainMap.push('forest');
+              } else if (Math.random() < 0.1) {
+                element.classList.add('terrain-mountain');
+                const img = CreateTerrainImage('mountain');
+                element.appendChild(img);
+                serializableTerrainMap.push('mountain');
+              } else {
+                element.classList.add('terrain-field');
+                const img = CreateTerrainImage('field');
+                element.appendChild(img);
+                serializableTerrainMap.push('field');
+              }
+            } else {
+              element.classList.add('terrain-water');
+              const img = CreateTerrainImage('water');
+              element.appendChild(img);
+              GlobalState.terrain.waterTiles.push(img);
+              serializableTerrainMap.push('water');
+            }
           }
 
           const path = document.createElement('div');
@@ -131,14 +279,15 @@
       GlobalState.terrain.htmlMap = document.getElementById('map');
       GlobalState.terrain.waterTiles = [];
 
-      const terrain = GetSavedTerrain();
-      if (terrain) {
-        GenerateSavedTerrain(terrain);
-      } else {
-        const size = 20 * 40;
-        GenerateNewTerrain(size);
-      }
+      //const terrain = GetSavedTerrain();
+      // if (terrain) {
+      //   GenerateSavedTerrain(terrain);
+      // } else {
+      const size = 20 * 40;
+      GenerateNewTerrain(size);
+      //}
     </script>
+    <script></script>
 
     <script>
       /* Water animation */
@@ -183,7 +332,7 @@
         id = '';
         type = '';
         movementRange = 0;
-        canMoveInTerrain = ['field', 'forest', 'mountain', 'water'];
+        canMoveInTerrain = ['field', 'forest', 'mountain', 'water', 'road'];
         tileElement = null;
         hitPoints = 100;
         directAttack = true;
@@ -215,22 +364,25 @@
         if (type === 'infantry') {
           return {
             movementRange: 3,
-            canMoveInTerrain: ['field', 'forest', 'mountain'],
+            canMoveInTerrain: ['field', 'forest', 'mountain', 'road'],
           };
         }
         if (type === 'tank') {
-          return { movementRange: 6, canMoveInTerrain: ['field', 'forest'] };
+          return {
+            movementRange: 6,
+            canMoveInTerrain: ['field', 'forest', 'road'],
+          };
         }
         if (type === 'rpg') {
           return {
             movementRange: 2,
-            canMoveInTerrain: ['field', 'forest', 'mountain'],
+            canMoveInTerrain: ['field', 'forest', 'mountain', 'road'],
           };
         }
         if (type === 'rockets') {
           return {
             movementRange: 3,
-            canMoveInTerrain: ['field', 'forest'],
+            canMoveInTerrain: ['field', 'forest', 'road'],
             directAttack: false,
             directDefense: false,
             attackRange: 5,
@@ -819,6 +971,9 @@
           return 2;
         }
         if (terrainType === 'water') {
+          return 1;
+        }
+        if (terrainType === 'road') {
           return 1;
         }
       }
