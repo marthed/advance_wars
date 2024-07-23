@@ -16,6 +16,26 @@
     </div>
 
     <script>
+      let GlobalState = {
+        path: [], // TileData for current unit path
+        currentTileId: null, // number
+        currentSelectedUnitTile: null, // element
+        currentSelectedUnitElement: null,
+        adjacentEnemyTiles: [],
+        targetEnemyUnitTile: null,
+        units: { 1: {}, 2: {}, 3: {}, 4: {} },
+        turn: 1,
+        playerTurn: 1,
+        numberOfPlayers: 2,
+        playerColors: { 1: 'green', 2: 'red', 3: 'blue', 4: 'yellow' },
+        terrain: {
+          htmlMap: null,
+          waterTiles: [],
+        },
+      };
+    </script>
+
+    <script>
       /* Terrain Generation */
       function CreateTerrainImage(terrainType) {
         const img = document.createElement('img');
@@ -28,55 +48,109 @@
     </script>
 
     <script>
-      /* Generate Map */
-      const htmlMap = document.getElementById('map');
+      function GetSavedTerrain() {
+        const item = window.localStorage.getItem('terrain');
 
-      const size = 20 * 40;
-
-      let waterTiles = [];
-
-      for (let i = 0; i < size; i++) {
-        const element = document.createElement('div');
-        element.classList.add('grid-item');
-        element.id = 'tile-' + i;
-
-        if (i < size / 2) {
-          if (Math.random() < 0.2) {
-            element.classList.add('terrain-forest');
-            const img = CreateTerrainImage('forest');
-            element.appendChild(img);
-          } else if (Math.random() < 0.1) {
-            element.classList.add('terrain-mountain');
-            const img = CreateTerrainImage('mountain');
-            element.appendChild(img);
-          } else {
-            element.classList.add('terrain-field');
-            const img = CreateTerrainImage('field');
-            element.appendChild(img);
-          }
-        } else {
-          element.classList.add('terrain-water');
-          const img = CreateTerrainImage('water');
-          element.appendChild(img);
-          waterTiles.push(img);
+        if (item) {
+          const savedTerrain = item.split(',');
+          return savedTerrain;
         }
+      }
 
-        const path = document.createElement('div');
-        path.classList.add('path');
+      function GenerateSavedTerrain(savedTerrain = []) {
+        const serializableTerrainMap = [];
 
-        element.appendChild(path);
+        for (let i = 0; i < savedTerrain.length; i++) {
+          const element = document.createElement('div');
+          element.classList.add('grid-item');
+          element.id = 'tile-' + i;
 
-        htmlMap.appendChild(element);
+          element.classList.add(`terrain-${savedTerrain[i]}`);
+          const img = CreateTerrainImage(savedTerrain[i]);
+          element.appendChild(img);
+
+          if (savedTerrain[i] === 'water') {
+            GlobalState.terrain.waterTiles.push(img);
+          }
+
+          const path = document.createElement('div');
+          path.classList.add('path');
+
+          element.appendChild(path);
+
+          GlobalState.terrain.htmlMap.appendChild(element);
+        }
+      }
+
+      function GenerateNewTerrain(size) {
+        const serializableTerrainMap = [];
+
+        for (let i = 0; i < size; i++) {
+          const element = document.createElement('div');
+          element.classList.add('grid-item');
+          element.id = 'tile-' + i;
+
+          if (i < size / 2) {
+            if (Math.random() < 0.2) {
+              element.classList.add('terrain-forest');
+              const img = CreateTerrainImage('forest');
+              element.appendChild(img);
+              serializableTerrainMap.push('forest');
+            } else if (Math.random() < 0.1) {
+              element.classList.add('terrain-mountain');
+              const img = CreateTerrainImage('mountain');
+              element.appendChild(img);
+              serializableTerrainMap.push('mountain');
+            } else {
+              element.classList.add('terrain-field');
+              const img = CreateTerrainImage('field');
+              element.appendChild(img);
+              serializableTerrainMap.push('field');
+            }
+          } else {
+            element.classList.add('terrain-water');
+            const img = CreateTerrainImage('water');
+            element.appendChild(img);
+            GlobalState.terrain.waterTiles.push(img);
+            serializableTerrainMap.push('water');
+          }
+
+          const path = document.createElement('div');
+          path.classList.add('path');
+
+          element.appendChild(path);
+
+          GlobalState.terrain.htmlMap.appendChild(element);
+        }
+        window.localStorage.setItem('terrain', serializableTerrainMap);
       }
     </script>
+
     <script>
+      /* Generate Map */
+      GlobalState.terrain.htmlMap = document.getElementById('map');
+      GlobalState.terrain.waterTiles = [];
+
+      const terrain = GetSavedTerrain();
+      if (terrain) {
+        GenerateSavedTerrain(terrain);
+      } else {
+        const size = 20 * 40;
+        GenerateNewTerrain(size);
+      }
+    </script>
+
+    <script>
+      /* Water animation */
+      const { waterTiles } = GlobalState.terrain;
+
       const WaterAnimation = {
         numberOfTilesPerInterval: waterTiles.length,
         max: waterTiles.length - 1,
         min: 0,
         paths: ['water.png', 'water_1.png', 'water_2.png', 'water_3.png'],
       };
-      /* Water animation */
+
       setInterval(() => {
         const { numberOfTilesPerInterval, max, min, paths } = WaterAnimation;
 
@@ -159,6 +233,7 @@
             canMoveInTerrain: ['field', 'forest'],
             directAttack: false,
             directDefense: false,
+            attackRange: 5,
           };
         }
         if (type === 'battleship') {
@@ -167,6 +242,7 @@
             canMoveInTerrain: ['water'],
             directAttack: false,
             directDefense: false,
+            attackRange: 6,
           };
         }
 
@@ -871,22 +947,6 @@
     </script>
 
     <script>
-      let GlobalState = {
-        path: [], // TileData for current unit path
-        currentTileId: null, // number
-        currentSelectedUnitTile: null, // element
-        currentSelectedUnitElement: null,
-        adjacentEnemyTiles: [],
-        targetEnemyUnitTile: null,
-        units: { 1: {}, 2: {}, 3: {}, 4: {} },
-        turn: 1,
-        playerTurn: 1,
-        numberOfPlayers: 2,
-        playerColors: { 1: 'green', 2: 'red', 3: 'blue', 4: 'yellow' },
-      };
-    </script>
-
-    <script>
       const EventListener = (event) => {
         const { key } = event;
         const { path, currentSelectedUnitTile } = GlobalState;
@@ -1010,14 +1070,22 @@
       /* Initial values */
       const startPositionsPlayer1 = [
         { tile: '84', unit: new Unit('infantry') },
+        { tile: '85', unit: new Unit('infantry') },
+        { tile: '86', unit: new Unit('infantry') },
         { tile: '123', unit: new Unit('tank') },
+        { tile: '124', unit: new Unit('tank') },
         { tile: '162', unit: new Unit('rpg') },
+        { tile: '163', unit: new Unit('rpg') },
       ];
 
       const startPositionsPlayer2 = [
-        { tile: '86', unit: new Unit('infantry') },
-        { tile: '128', unit: new Unit('tank') },
-        { tile: '129', unit: new Unit('rpg') },
+        { tile: '93', unit: new Unit('infantry') },
+        { tile: '94', unit: new Unit('infantry') },
+        { tile: '95', unit: new Unit('infantry') },
+        { tile: '135', unit: new Unit('tank') },
+        { tile: '134', unit: new Unit('tank') },
+        { tile: '173', unit: new Unit('rpg') },
+        { tile: '131', unit: new Unit('rpg') },
         { tile: '455', unit: new Unit('battleship') },
       ];
 
