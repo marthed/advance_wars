@@ -50,19 +50,15 @@
             img.src = 'terrain/road_straight.png';
             img.classList.add(`road--${road}`);
           } else if (road === 'right-up') {
-            console.log('right-up');
             img.src = 'terrain/road_curved.png';
             img.classList.add(`road--${road}`);
           } else if (road === 'left-up') {
-            console.log('left-up');
             img.src = 'terrain/road_curved.png';
             img.classList.add(`road--${road}`);
           } else if (road === 'right-down') {
-            console.log('right-down');
             img.src = 'terrain/road_curved.png';
             img.classList.add(`road--${road}`);
           } else if (road === 'left-down') {
-            console.log('left-down');
             img.src = 'terrain/road_curved.png';
             img.classList.add(`road--${road}`);
           } else {
@@ -88,6 +84,12 @@
         }
       }
 
+      const roadMappings = [
+        160, 161, 162, 163, 164, 165, 205, 245, 246, 247, 248, 249, 250, 251,
+        252, 212, 172, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 101,
+        61, 21,
+      ];
+
       function GenerateSavedTerrain(savedTerrain = []) {
         const serializableTerrainMap = [];
 
@@ -96,12 +98,19 @@
           element.classList.add('grid-item');
           element.id = 'tile-' + i;
 
-          element.classList.add(`terrain-${savedTerrain[i]}`);
-          const img = CreateTerrainImage(savedTerrain[i]);
-          element.appendChild(img);
+          const roadIndex = roadMappings.find((tileIndex) => tileIndex === i);
 
-          if (savedTerrain[i] === 'water') {
-            GlobalState.terrain.waterTiles.push(img);
+          if (roadIndex) {
+            CreateRoad(element);
+            serializableTerrainMap.push('road');
+          } else {
+            element.classList.add(`terrain-${savedTerrain[i]}`);
+            const img = CreateTerrainImage(savedTerrain[i]);
+            element.appendChild(img);
+
+            if (savedTerrain[i] === 'water') {
+              GlobalState.terrain.waterTiles.push(img);
+            }
           }
 
           const path = document.createElement('div');
@@ -112,12 +121,6 @@
           GlobalState.terrain.htmlMap.appendChild(element);
         }
       }
-
-      const roadMappings = [
-        160, 161, 162, 163, 164, 165, 205, 245, 246, 247, 248, 249, 250, 251,
-        252, 212, 172, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 101,
-        61, 21,
-      ];
 
       function CreateRoad(tile) {
         const tileIndex = Number(tile.id.split('-')[1]);
@@ -163,13 +166,6 @@
           img = CreateTerrainImage('road', { road: modify });
         }
 
-        // horizontal
-        // vertical
-        // up-left
-        // up- right
-        // down - left
-        // down - right
-
         tile.appendChild(img);
       }
 
@@ -205,7 +201,6 @@
           }
 
           if (next === -1) {
-            console.log(previous, next);
             return 'left-up';
           }
 
@@ -283,13 +278,13 @@
       GlobalState.terrain.htmlMap = document.getElementById('map');
       GlobalState.terrain.waterTiles = [];
 
-      //const terrain = GetSavedTerrain();
-      // if (terrain) {
-      //   GenerateSavedTerrain(terrain);
-      // } else {
-      const size = 20 * 40;
-      GenerateNewTerrain(size);
-      //}
+      const terrain = GetSavedTerrain();
+      if (terrain) {
+        GenerateSavedTerrain(terrain);
+      } else {
+        const size = 20 * 40;
+        GenerateNewTerrain(size);
+      }
     </script>
     <script></script>
 
@@ -657,7 +652,36 @@
         const currentUnit =
           GlobalState.units[playerTurn][currentSelectedUnitElement.id];
 
-        return path.length >= currentUnit.movementRange + 1;
+        const terrainInPath = path.map((tileData) =>
+          GetTerrainType(tileData.element)
+        );
+
+        let reduceField = 0;
+        let reduceForest = 0;
+        let reduceMountain = 0;
+
+        const containsMountain = terrainInPath.some((t) => t === 'mountain');
+        const containsForest = terrainInPath.some((t) => t === 'forest');
+        const containsField = terrainInPath.some((t) => t === 'field');
+
+        if (currentUnit.type === 'tank') {
+          reduceField = containsField ? 0 : 0;
+          reduceForest = containsForest ? 1 : 0;
+          reduceMountain = containsMountain ? 0 : 0;
+        } else if (currentUnit.type === 'infantry') {
+          reduceField = containsField ? 0 : 0;
+          reduceForest = containsForest ? 0 : 0;
+          reduceMountain = containsMountain ? 1 : 0;
+        } else if (currentUnit.type === 'rpg') {
+          reduceField = containsField ? 0 : 0;
+          reduceForest = containsForest ? 0 : 0;
+          reduceMountain = containsMountain ? 1 : 0;
+        }
+
+        const reduction =
+          Number(reduceField) + Number(reduceForest) + Number(reduceMountain);
+
+        return path.length >= currentUnit.movementRange + 1 - reduction;
       }
 
       function EndTurn() {
