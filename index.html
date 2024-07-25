@@ -367,6 +367,42 @@
     </script>
 
     <script>
+      /* Audio */
+      const AudioPlayer = new Audio();
+
+      const baseUrl = 'audio/';
+
+      function PlaySound(type) {
+        AudioPlayer.pause();
+
+        switch (type) {
+          case 'infantry_walk':
+            AudioPlayer.src = baseUrl + 'infantry_walk.wav';
+            break;
+          case 'infantry_fire':
+            AudioPlayer.src = baseUrl + 'infantry_fire.wav';
+            break;
+        }
+
+        if (AudioPlayer.src) {
+          AudioPlayer.load();
+          AudioPlayer.play();
+        }
+      }
+
+      function PlayMovementSound() {
+        const { currentSelectedUnitElement, playerTurn, units } = GlobalState;
+
+        const unit = units[playerTurn][currentSelectedUnitElement.id];
+
+        if (unit.type === 'infantry') {
+          PlaySound('infantry_walk');
+        } else if (unit.type === 'rpg') {
+          PlaySound('infantry_walk');
+        }
+      }
+    </script>
+    <script>
       /* Functions */
 
       function GenerateId() {
@@ -673,6 +709,7 @@
         let reduceField = 0;
         let reduceForest = 0;
         let reduceMountain = 0;
+        let reduceShore = 0;
 
         const containsMountain = terrainInPath.some((t) => t === 'mountain');
         const containsForest = terrainInPath.some((t) => t === 'forest');
@@ -1211,6 +1248,7 @@
         const defenceTerrain = GetTerrainType(targetEnemyUnitTile);
 
         if (attackUnit.type === 'infantry') {
+          PlaySound('infantry_fire');
           if (defenceUnit.type === 'infantry') {
             CalculateHitPoints(
               { attackUnit, attackerStength: 50, attackTerrain },
@@ -1245,12 +1283,14 @@
 
         if (attackUnit.type === 'rpg') {
           if (defenceUnit.type === 'infantry') {
+            PlaySound('infantry_fire');
             CalculateHitPoints(
               { attackUnit, attackerStength: 50, attackTerrain },
               { defenceUnit, defenderStength: 50, defenceTerrain }
             );
           }
           if (defenceUnit.type === 'rpg') {
+            PlaySound('infantry_fire');
             CalculateHitPoints(
               { attackUnit, attackerStength: 50, attackTerrain },
               { defenceUnit, defenderStength: 50, defenceTerrain }
@@ -1491,6 +1531,7 @@
             }
           }
           ResetPath();
+          PlayMovementSound();
 
           if (AdjacentEnemyUnits()) {
             AddUnitElement({
