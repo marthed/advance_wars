@@ -253,6 +253,11 @@
                 element.appendChild(img);
                 serializableTerrainMap.push('field');
               }
+            } else if (i < 440) {
+              element.classList.add('terrain-shore');
+              const img = CreateTerrainImage('shore');
+              element.appendChild(img);
+              serializableTerrainMap.push('shore');
             } else {
               element.classList.add('terrain-water');
               const img = CreateTerrainImage('water');
@@ -331,7 +336,14 @@
         id = '';
         type = '';
         movementRange = 0;
-        canMoveInTerrain = ['field', 'forest', 'mountain', 'water', 'road'];
+        canMoveInTerrain = [
+          'field',
+          'forest',
+          'mountain',
+          'water',
+          'road',
+          'shore',
+        ];
         tileElement = null;
         hitPoints = 100;
         directAttack = true;
@@ -363,25 +375,25 @@
         if (type === 'infantry') {
           return {
             movementRange: 3,
-            canMoveInTerrain: ['field', 'forest', 'mountain', 'road'],
+            canMoveInTerrain: ['field', 'forest', 'mountain', 'road', 'shore'],
           };
         }
         if (type === 'tank') {
           return {
             movementRange: 6,
-            canMoveInTerrain: ['field', 'forest', 'road'],
+            canMoveInTerrain: ['field', 'forest', 'road', 'shore'],
           };
         }
         if (type === 'rpg') {
           return {
             movementRange: 2,
-            canMoveInTerrain: ['field', 'forest', 'mountain', 'road'],
+            canMoveInTerrain: ['field', 'forest', 'mountain', 'road', 'shore'],
           };
         }
         if (type === 'rockets') {
           return {
             movementRange: 3,
-            canMoveInTerrain: ['field', 'forest', 'road'],
+            canMoveInTerrain: ['field', 'forest', 'road', 'shore'],
             directAttack: false,
             directDefense: false,
             attackRange: 5,
@@ -666,7 +678,7 @@
 
         if (currentUnit.type === 'tank') {
           reduceField = containsField ? 0 : 0;
-          reduceForest = containsForest ? 1 : 0;
+          reduceForest = containsForest ? 2 : 0;
           reduceMountain = containsMountain ? 0 : 0;
         } else if (currentUnit.type === 'infantry') {
           reduceField = containsField ? 0 : 0;
@@ -1002,6 +1014,9 @@
           return 1;
         }
         if (terrainType === 'road') {
+          return 1;
+        }
+        if (terrainType === 'shore') {
           return 1;
         }
       }
