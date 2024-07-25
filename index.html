@@ -394,10 +394,11 @@
         }
         if (type === 'rockets') {
           return {
-            movementRange: 3,
+            movementRange: 6,
             canMoveInTerrain: ['field', 'forest', 'road', 'shore'],
             directAttack: false,
             attackRange: 5,
+            minAttackRange: 2,
           };
         }
         if (type === 'battleship') {
@@ -405,7 +406,8 @@
             movementRange: 5,
             canMoveInTerrain: ['water'],
             directAttack: false,
-            attackRange: 4,
+            attackRange: 6,
+            minAttackRange: 2,
           };
         }
 
@@ -675,6 +677,7 @@
         const containsMountain = terrainInPath.some((t) => t === 'mountain');
         const containsForest = terrainInPath.some((t) => t === 'forest');
         const containsField = terrainInPath.some((t) => t === 'field');
+        const containsShore = terrainInPath.some((t) => t === 'shore');
 
         if (currentUnit.type === 'tank') {
           reduceField = containsField ? 0 : 0;
@@ -688,10 +691,18 @@
           reduceField = containsField ? 0 : 0;
           reduceForest = containsForest ? 0 : 0;
           reduceMountain = containsMountain ? 1 : 0;
+        } else if (currentUnit.type === 'rockets') {
+          reduceField = containsField ? 1 : 0;
+          reduceForest = containsForest ? 3 : 0;
+          reduceMountain = containsMountain ? 1 : 0;
+          reduceShore = containsShore ? 2 : 0;
         }
 
         const reduction =
-          Number(reduceField) + Number(reduceForest) + Number(reduceMountain);
+          Number(reduceField) +
+          Number(reduceForest) +
+          Number(reduceMountain) +
+          Number(reduceShore);
 
         return path.length >= currentUnit.movementRange + 1 - reduction;
       }
@@ -1224,6 +1235,12 @@
               { defenceUnit, defenderStength: 0, defenceTerrain }
             );
           }
+          if (defenceUnit.type === 'rockets') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 50, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
         }
 
         if (attackUnit.type === 'rpg') {
@@ -1248,6 +1265,12 @@
           if (defenceUnit.type === 'battleship') {
             CalculateHitPoints(
               { attackUnit, attackerStength: 20, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'rockets') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 70, attackTerrain },
               { defenceUnit, defenderStength: 0, defenceTerrain }
             );
           }
@@ -1278,6 +1301,12 @@
               { defenceUnit, defenderStength: 0, defenceTerrain }
             );
           }
+          if (defenceUnit.type === 'rockets') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 80, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
         }
 
         if (attackUnit.type === 'battleship') {
@@ -1300,6 +1329,45 @@
             );
           }
           if (defenceUnit.type === 'battleship') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 50, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'rockets') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 70, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+        }
+
+        if (attackUnit.type === 'rockets') {
+          if (defenceUnit.type === 'infantry') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 80, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'rpg') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 80, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'tank') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 60, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'battleship') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 30, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'rockets') {
             CalculateHitPoints(
               { attackUnit, attackerStength: 50, attackTerrain },
               { defenceUnit, defenderStength: 0, defenceTerrain }
@@ -1496,6 +1564,7 @@
         { tile: '162', unit: new Unit('rpg') },
         { tile: '163', unit: new Unit('rpg') },
         { tile: '444', unit: new Unit('battleship') },
+        { tile: '245', unit: new Unit('rockets') },
       ];
 
       const startPositionsPlayer2 = [
@@ -1509,6 +1578,7 @@
         { tile: '455', unit: new Unit('battleship') },
         { tile: '365', unit: new Unit('infantry') },
         { tile: '324', unit: new Unit('tank') },
+        { tile: '132', unit: new Unit('rockets') },
       ];
 
       document
