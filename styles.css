@@ -196,7 +196,7 @@ body {
   display: flex;
   flex-direction: column;
   padding: 4px;
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.8);
   z-index: 9000;
   cursor:pointer;
 }
@@ -205,6 +205,10 @@ body {
   text-align: center;
   margin: 6 2 6 2;
   cursor: pointer;
+}
+
+.unit-action-modal__option:hover {
+  background-color: rgb(83, 112, 138);
 }
 
 .delimeter {
