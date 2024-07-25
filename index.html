@@ -347,7 +347,7 @@
         tileElement = null;
         hitPoints = 100;
         directAttack = true;
-        directDefense = true;
+        attackRange = 0;
 
         constructor(type) {
           this.id = GenerateId();
@@ -356,10 +356,12 @@
             canMoveInTerrain,
             movementRange,
             directAttack = true,
-            directDefense = true,
+            attackRange = 0,
           } = GetUnitLogic(type);
           this.canMoveInTerrain = canMoveInTerrain;
           this.movementRange = movementRange;
+          this.directAttack = directAttack;
+          this.attackRange = attackRange;
         }
       }
     </script>
@@ -395,7 +397,6 @@
             movementRange: 3,
             canMoveInTerrain: ['field', 'forest', 'road', 'shore'],
             directAttack: false,
-            directDefense: false,
             attackRange: 5,
           };
         }
@@ -404,8 +405,7 @@
             movementRange: 5,
             canMoveInTerrain: ['water'],
             directAttack: false,
-            directDefense: false,
-            attackRange: 6,
+            attackRange: 4,
           };
         }
 
@@ -781,6 +781,8 @@
         }
       }
 
+      function CheckRangedAttackTarget() {}
+
       function RemoveUnitActionModalEvents() {
         document.removeEventListener('keydown', UnitActionModalEvents);
 
@@ -844,7 +846,7 @@
       };
 
       function OpenUnitActionModal() {
-        const { currentTileId, adjacentEnemyTiles } = GlobalState;
+        const { currentTileId } = GlobalState;
         const currentTile = document.getElementById(`tile-${currentTileId}`);
 
         document.getElementById('map').style.overflow = 'hidden';
@@ -876,24 +878,81 @@
         });
       }
 
+      function HandleSelectRangedTarget(command) {
+        const { adjacentEnemyTiles, targetEnemyUnitTile, currentTileId } =
+          GlobalState;
+
+        const currentEnemyTileId = adjacentEnemyTiles.find(
+          ({ tileElement }) =>
+            GetTileId(tileElement) === GetTileId(targetEnemyUnitTile)
+        );
+
+        const index = adjacentEnemyTiles.indexOf(currentEnemyTileId);
+
+        if (command === 'ArrowRight') {
+          const nextIndex =
+            index + 1 === adjacentEnemyTiles.length ? 0 : index + 1;
+          return adjacentEnemyTiles[nextIndex];
+        }
+        if (command === 'ArrowLeft') {
+          const nextIndex =
+            index - 1 < 0 ? adjacentEnemyTiles.length - 1 : index - 1;
+          return adjacentEnemyTiles[nextIndex];
+        }
+        if (command === 'ArrowDown') {
+          const nextIndex =
+            index - 1 < 0 ? adjacentEnemyTiles.length - 1 : index - 1;
+          return adjacentEnemyTiles[nextIndex];
+        }
+        if (command === 'ArrowUp') {
+          const nextIndex =
+            index + 1 === adjacentEnemyTiles.length ? 0 : index + 1;
+          return adjacentEnemyTiles[nextIndex];
+        }
+        return targetEnemyUnitTile;
+      }
+
       function ChangeTargetEnemy() {
         const { key } = event;
-        const { adjacentEnemyTiles } = GlobalState;
+        const {
+          adjacentEnemyTiles,
+          currentSelectedUnitElement,
+          units,
+          playerTurn,
+        } = GlobalState;
+
+        const unit = units[playerTurn][currentSelectedUnitElement.id];
         const actions = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
 
-        if (actions.find((command) => command === key)) {
-          const enemyTile = adjacentEnemyTiles.find(
-            (tile) => tile.direction === key
-          );
+        if (unit.directAttack === false) {
+          if (actions.find((command) => command === key)) {
+            const enemyTile = HandleSelectRangedTarget(key);
 
-          if (enemyTile) {
-            ResetTargetEnemy();
+            if (enemyTile) {
+              ResetTargetEnemy();
 
-            enemyTile.tileElement
-              .querySelector('.path')
-              .classList.add('path__highlighted--attack'); // Change to image later
+              enemyTile.tileElement
+                .querySelector('.path')
+                .classList.add('path__highlighted--attack'); // Change to image later
 
-            GlobalState.targetEnemyUnitTile = enemyTile.tileElement;
+              GlobalState.targetEnemyUnitTile = enemyTile.tileElement;
+            }
+          }
+        } else {
+          if (actions.find((command) => command === key)) {
+            const enemyTile = adjacentEnemyTiles.find(
+              (tile) => tile.direction === key
+            );
+
+            if (enemyTile) {
+              ResetTargetEnemy();
+
+              enemyTile.tileElement
+                .querySelector('.path')
+                .classList.add('path__highlighted--attack'); // Change to image later
+
+              GlobalState.targetEnemyUnitTile = enemyTile.tileElement;
+            }
           }
         }
 
@@ -943,18 +1002,85 @@
         }
       }
 
-      function AdjacentEnemyUnits() {
-        const { currentTileId, playerTurn } = GlobalState;
+      function AdjacentEnemyUnits(options = {}) {
+        const { currentTileId, playerTurn, currentSelectedUnitElement, units } =
+          GlobalState;
 
-        const surroundingTiles = [
-          currentTileId - 1,
-          currentTileId + 1,
-          currentTileId - 40,
-          currentTileId + 40,
-        ]
+        const unit = units[playerTurn][currentSelectedUnitElement.id];
+
+        let surroundingTiles = [];
+
+        if (unit.attackRange && !options.range) {
+          return false;
+        }
+
+        if (unit.attackRange) {
+          const attackRange = unit.attackRange;
+
+          for (let i = attackRange; i > -1; i--) {
+            let up;
+            let down;
+
+            if (i !== 0) {
+              up = currentTileId + -40 * i;
+              down = currentTileId + 40 * i;
+              surroundingTiles.push(up);
+              surroundingTiles.push(down);
+
+              // const upElem = document.getElementById('tile-' + up);
+              // AddPath('ArrowUp', upElem);
+
+              // const downElem = document.getElementById('tile-' + down);
+              // AddPath('ArrowUp', downElem);
+            }
+
+            const rowTiles = attackRange - i;
+
+            for (let j = 1; j < rowTiles + 1; j++) {
+              if (i === 0) {
+                const left = currentTileId - j;
+                const right = currentTileId + j;
+                surroundingTiles.push(left);
+                surroundingTiles.push(right);
+                // AddPath('ArrowUp', document.getElementById('tile-' + left));
+                // AddPath('ArrowUp', document.getElementById('tile-' + right));
+
+                const hej = 0;
+              } else {
+                const upLeft = up - j;
+                const upRight = up + j;
+
+                const downLeft = down - j;
+                const downRight = down + j;
+
+                // AddPath('ArrowUp', document.getElementById('tile-' + upLeft));
+                // AddPath('ArrowUp', document.getElementById('tile-' + upRight));
+                // AddPath('ArrowUp', document.getElementById('tile-' + downLeft));
+                // AddPath(
+                //   'ArrowUp',
+                //   document.getElementById('tile-' + downRight)
+                // );
+
+                surroundingTiles.push(upLeft);
+                surroundingTiles.push(upRight);
+                surroundingTiles.push(downLeft);
+                surroundingTiles.push(downRight);
+              }
+            }
+          }
+        } else {
+          surroundingTiles = [
+            currentTileId - 1,
+            currentTileId + 1,
+            currentTileId - 40,
+            currentTileId + 40,
+          ];
+        }
+
+        surroundingTiles = surroundingTiles
           .map((id) => ({
             tileElement: document.getElementById(`tile-${id}`),
-            direction: MapDirection(id),
+            direction: options.range ? null : MapDirection(id),
           }))
           .filter((tile) => !!tile.tileElement);
 
@@ -994,6 +1120,24 @@
         }
 
         return true;
+      }
+      function CheckRangeAttack() {
+        const { currentSelectedUnitElement, playerTurn, path } = GlobalState;
+
+        if (!currentSelectedUnitElement) {
+          return false;
+        }
+
+        if (path.length > 1) {
+          return false;
+        }
+
+        const unit =
+          GlobalState.units[playerTurn][currentSelectedUnitElement.id];
+
+        if (!unit.directAttack) {
+          return true;
+        }
       }
     </script>
 
@@ -1074,6 +1218,12 @@
               { defenceUnit, defenderStength: 80, defenceTerrain }
             );
           }
+          if (defenceUnit.type === 'battleship') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 1, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
         }
 
         if (attackUnit.type === 'rpg') {
@@ -1095,6 +1245,12 @@
               { defenceUnit, defenderStength: 40, defenceTerrain }
             );
           }
+          if (defenceUnit.type === 'battleship') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 20, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
         }
 
         if (attackUnit.type === 'tank') {
@@ -1114,6 +1270,39 @@
             CalculateHitPoints(
               { attackUnit, attackerStength: 60, attackTerrain },
               { defenceUnit, defenderStength: 50, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'battleship') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 20, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+        }
+
+        if (attackUnit.type === 'battleship') {
+          if (defenceUnit.type === 'infantry') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 80, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'rpg') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 80, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'tank') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 60, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
+            );
+          }
+          if (defenceUnit.type === 'battleship') {
+            CalculateHitPoints(
+              { attackUnit, attackerStength: 50, attackTerrain },
+              { defenceUnit, defenderStength: 0, defenceTerrain }
             );
           }
         }
@@ -1213,6 +1402,26 @@
           }
 
           RemoveUnitElement();
+
+          if (CheckRangeAttack()) {
+            ResetPath();
+
+            if (AdjacentEnemyUnits({ range: true })) {
+              AddUnitElement({
+                hasMoved: false,
+                flipped: GlobalState.playerTurn === 2,
+              });
+              SelectTargetEnemy();
+              return;
+            } else {
+              AddUnitElement({
+                hasMoved: true,
+                flipped: GlobalState.playerTurn === 2,
+              });
+              ResetSelectedTile();
+              return;
+            }
+          }
           ResetPath();
 
           if (AdjacentEnemyUnits()) {
@@ -1286,6 +1495,7 @@
         { tile: '124', unit: new Unit('tank') },
         { tile: '162', unit: new Unit('rpg') },
         { tile: '163', unit: new Unit('rpg') },
+        { tile: '444', unit: new Unit('battleship') },
       ];
 
       const startPositionsPlayer2 = [
@@ -1297,6 +1507,8 @@
         { tile: '173', unit: new Unit('rpg') },
         { tile: '131', unit: new Unit('rpg') },
         { tile: '455', unit: new Unit('battleship') },
+        { tile: '365', unit: new Unit('infantry') },
+        { tile: '324', unit: new Unit('tank') },
       ];
 
       document
