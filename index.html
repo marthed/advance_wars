@@ -32,6 +32,7 @@
           htmlMap: null,
           waterTiles: [],
         },
+        animation: {},
       };
     </script>
 
@@ -715,6 +716,11 @@
             .classList.add('flipped-right');
           //unitElement.classList.add('flipped-right');
         }
+      }
+
+      function SetPathForAnimation() {
+        const { path } = GlobalState;
+        GlobalState.animation.path = [...path];
       }
 
       function ResetPath() {
@@ -1817,7 +1823,8 @@
       /* Unit Animation */
 
       async function AnimateCurrentUnitMovement() {
-        const { currentSelectedUnitElement, path } = GlobalState;
+        const { currentSelectedUnitElement, animation } = GlobalState;
+        const { path } = animation;
 
         const translations = path.reduce((acc, tileData, index) => {
           const nextTileData = path[index + 1];
@@ -1853,11 +1860,7 @@
           ];
         }, []);
 
-        console.log(translations);
-
-        RunAnimations(currentSelectedUnitElement, translations).then(() => {
-          console.log('Finished');
-        });
+        return RunAnimations(currentSelectedUnitElement, translations);
       }
 
       async function RunAnimations(element, animations) {
@@ -1869,7 +1872,7 @@
     </script>
 
     <script>
-      const EventListener = (event) => {
+      const EventListener = async (event) => {
         const { key } = event;
         const { path, currentSelectedUnitTile } = GlobalState;
         event.preventDefault();
@@ -1920,11 +1923,11 @@
             `tile-${GlobalState.currentTileId}`
           );
 
+          document.removeEventListener('keydown', EventListener);
+
           if (TileIsOccupied(currentTile)) {
             return;
           }
-
-          //RemoveUnitElement();
 
           if (CheckRangeAttack()) {
             ResetPath();
@@ -1935,20 +1938,20 @@
                 flipped: GlobalState.playerTurn === 2,
               });
               SelectTargetEnemy();
-              return;
             } else {
               AddUnitElement({
                 hasMoved: true,
                 flipped: GlobalState.playerTurn === 2,
               });
               ResetSelectedTile();
-              return;
             }
+            return;
           }
-          PlayMovementSound();
-          AnimateCurrentUnitMovement();
-          return;
+          SetPathForAnimation();
           ResetPath();
+          PlayMovementSound();
+          await AnimateCurrentUnitMovement();
+          RemoveUnitElement();
 
           if (AdjacentEnemyUnits()) {
             AddUnitElement({
