@@ -391,63 +391,31 @@
             return baseUrl + 'vechicle_move.wav';
           case 'battleship_fire':
             return baseUrl + 'battleship_fire.wav';
+          case 'battleship_move':
+            return baseUrl + 'battleship_move.wav';
           default:
             return '';
         }
       }
 
-      const AudioPlayer = new Audio();
-      const AudioPlayer2 = new Audio();
-
-      // const AudioState = {
-      //   audio_1: { player: AudioPlayer, isPlaying: false },
-      //   audio_2: { player: AudioPlayer2, isPlaying: false },
-      // };
-
-      // audio_1.player.onplaying = function () {
-      //   audio_1.isPlaying = true;
-      // };
-
-      // audio_2.player.onplaying = function () {
-      //   audio_2.isPlaying = true;
-      // };
-
-      // audio_1.player.onpause = function () {
-      //   audio_1.isPlaying = false;
-      // };
-
-      // audio_2.player.onplaying = function () {
-      //   audio_2.isPlaying = false;
-      // };
-
       function PlaySound(type) {
-        AudioPlayer.pause();
-        AudioPlayer.currentTime = 0;
+        const player = new Audio();
 
-        AudioPlayer.src = GetSoundFileUrl(type);
+        player.src = GetSoundFileUrl(type);
 
-        AudioPlayer.load();
-        AudioPlayer.play();
+        player.load();
+        player.play();
       }
 
       function PlaySounds(soundArray) {
-        AudioPlayer.pause();
-        AudioPlayer.currentTime = 0;
-        AudioPlayer2.pause();
-        AudioPlayer2.currentTime = 0;
-
         if (soundArray.length) {
           soundArray.forEach((sound, index) => {
             setTimeout(() => {
-              if (index % 2 === 0) {
-                AudioPlayer2.src = GetSoundFileUrl(sound.type);
-                AudioPlayer2.load();
-                AudioPlayer2.play();
-              } else {
-                AudioPlayer.src = GetSoundFileUrl(sound.type);
-                AudioPlayer.load();
-                AudioPlayer.play();
-              }
+              const player = new Audio();
+              player.src = GetSoundFileUrl(sound.type);
+              player.load();
+
+              player.play();
             }, sound.delay || 0);
           });
         }
@@ -466,6 +434,8 @@
           PlaySound('tank_move');
         } else if (unit.type === 'rockets') {
           PlaySound('vechicle_move');
+        } else if (unit.type === 'battleship') {
+          PlaySound('battleship_move');
         }
       }
     </script>
@@ -1290,7 +1260,7 @@
         // TODO: Do some animation
       }
 
-      function Attack() {
+      async function Attack() {
         const {
           currentSelectedUnitElement,
           currentSelectedUnitTile,
@@ -1304,10 +1274,9 @@
         const attackUnit =
           GlobalState.units[playerTurn][currentSelectedUnitElement.id];
 
-        const defenceUnit =
-          GlobalState.units[enemyElement.getAttribute('player')][
-            enemyElement.id
-          ];
+        const enemyPlayer = enemyElement.getAttribute('player');
+
+        const defenceUnit = GlobalState.units[enemyPlayer][enemyElement.id];
 
         const attackTerrain = GetTerrainType(
           document.getElementById(`tile-${currentTileId}`)
@@ -1321,8 +1290,18 @@
               { type: 'infantry_fire', delay: 500 },
             ]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 50, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 50,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 50,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'rpg') {
@@ -1331,8 +1310,18 @@
               { type: 'infantry_fire', delay: 500 },
             ]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 50, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 50,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 50,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'tank') {
@@ -1341,22 +1330,52 @@
               { type: 'tank_fire', delay: 500 },
             ]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 10, attackTerrain },
-              { defenceUnit, defenderStength: 80, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 10,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 80,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'battleship') {
             PlaySounds([{ type: 'infantry_fire', delay: 0 }]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 1, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 1,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'rockets') {
             PlaySounds([{ type: 'infantry_fire', delay: 0 }]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 50,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
         }
@@ -1368,8 +1387,18 @@
               { type: 'infantry_fire', delay: 500 },
             ]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 50, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 50,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 50,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'rpg') {
@@ -1378,8 +1407,18 @@
               { type: 'infantry_fire', delay: 500 },
             ]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 50, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 50,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 50,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'tank') {
@@ -1388,35 +1427,75 @@
               { type: 'tank_fire', delay: 500 },
             ]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 80, attackTerrain },
-              { defenceUnit, defenderStength: 40, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 80,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 40,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'battleship') {
             PlaySounds([{ type: 'rpg_fire', delay: 0 }]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 20, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 20,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'rockets') {
             PlaySounds([{ type: 'rpg_fire', delay: 0 }]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 70, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 70,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
         }
 
         if (attackUnit.type === 'tank') {
-          PlaySounds([
-            { type: 'tank_fire', delay: 0 },
-            { type: 'infantry_fire', delay: 500 },
-          ]);
           if (defenceUnit.type === 'infantry') {
+            PlaySounds([
+              { type: 'tank_fire', delay: 0 },
+              { type: 'infantry_fire', delay: 500 },
+            ]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 80, attackTerrain },
-              { defenceUnit, defenderStength: 10, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 80,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 10,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'rpg') {
@@ -1425,8 +1504,18 @@
               { type: 'rpg_fire', delay: 500 },
             ]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 80, attackTerrain },
-              { defenceUnit, defenderStength: 70, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 80,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 70,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'tank') {
@@ -1435,22 +1524,52 @@
               { type: 'tank_fire', delay: 500 },
             ]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 60, attackTerrain },
-              { defenceUnit, defenderStength: 50, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 60,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 50,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'battleship') {
             PlaySounds([{ type: 'tank_fire', delay: 0 }]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 20, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 20,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'rockets') {
             PlaySounds([{ type: 'tank_fire', delay: 0 }]);
             CalculateHitPoints(
-              { attackUnit, attackerStength: 80, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 80,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
         }
@@ -1459,69 +1578,190 @@
           PlaySound('battleship_fire');
           if (defenceUnit.type === 'infantry') {
             CalculateHitPoints(
-              { attackUnit, attackerStength: 80, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 80,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'rpg') {
             CalculateHitPoints(
-              { attackUnit, attackerStength: 80, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 80,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'tank') {
             CalculateHitPoints(
-              { attackUnit, attackerStength: 60, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 60,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'battleship') {
             CalculateHitPoints(
-              { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 50,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
           if (defenceUnit.type === 'rockets') {
             CalculateHitPoints(
-              { attackUnit, attackerStength: 70, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+              {
+                attackUnit,
+                attackerStength: 70,
+                attackTerrain,
+                player: playerTurn,
+              },
+              {
+                defenceUnit,
+                defenderStength: 0,
+                defenceTerrain,
+                player: enemyPlayer,
+              }
             );
           }
         }
 
         if (attackUnit.type === 'rockets') {
+          const impactDelay = 1000;
           PlaySounds([
             { type: 'rockets_fire_1', delay: 0 },
-            { type: 'rockets_fire_2', delay: 500 },
+            { type: 'rockets_fire_2', delay: impactDelay },
           ]);
           if (defenceUnit.type === 'infantry') {
-            CalculateHitPoints(
-              { attackUnit, attackerStength: 80, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+            await Delay(
+              () =>
+                CalculateHitPoints(
+                  {
+                    attackUnit,
+                    attackerStength: 80,
+                    attackTerrain,
+                    player: playerTurn,
+                  },
+                  {
+                    defenceUnit,
+                    defenderStength: 0,
+                    defenceTerrain,
+                    player: enemyPlayer,
+                  }
+                ),
+              impactDelay
             );
           }
           if (defenceUnit.type === 'rpg') {
-            CalculateHitPoints(
-              { attackUnit, attackerStength: 80, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+            await Delay(
+              () =>
+                CalculateHitPoints(
+                  {
+                    attackUnit,
+                    attackerStength: 80,
+                    attackTerrain,
+                    player: playerTurn,
+                  },
+                  {
+                    defenceUnit,
+                    defenderStength: 0,
+                    defenceTerrain,
+                    player: enemyPlayer,
+                  }
+                ),
+              impactDelay
             );
           }
           if (defenceUnit.type === 'tank') {
-            CalculateHitPoints(
-              { attackUnit, attackerStength: 60, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+            await Delay(
+              () =>
+                CalculateHitPoints(
+                  {
+                    attackUnit,
+                    attackerStength: 60,
+                    attackTerrain,
+                    player: playerTurn,
+                  },
+                  {
+                    defenceUnit,
+                    defenderStength: 0,
+                    defenceTerrain,
+                    player: enemyPlayer,
+                  }
+                ),
+              impactDelay
             );
           }
           if (defenceUnit.type === 'battleship') {
-            CalculateHitPoints(
-              { attackUnit, attackerStength: 30, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+            await Delay(
+              () =>
+                CalculateHitPoints(
+                  {
+                    attackUnit,
+                    attackerStength: 30,
+                    attackTerrain,
+                    player: playerTurn,
+                  },
+                  {
+                    defenceUnit,
+                    defenderStength: 0,
+                    defenceTerrain,
+                    player: enemyPlayer,
+                  }
+                ),
+              impactDelay
             );
           }
           if (defenceUnit.type === 'rockets') {
-            CalculateHitPoints(
-              { attackUnit, attackerStength: 50, attackTerrain },
-              { defenceUnit, defenderStength: 0, defenceTerrain }
+            await Delay(
+              () =>
+                CalculateHitPoints(
+                  {
+                    attackUnit,
+                    attackerStength: 50,
+                    attackTerrain,
+                    player: playerTurn,
+                  },
+                  {
+                    defenceUnit,
+                    defenderStength: 0,
+                    defenceTerrain,
+                    player: enemyPlayer,
+                  }
+                ),
+              impactDelay
             );
           }
         }
@@ -1540,6 +1780,15 @@
         }
       }
 
+      async function Delay(func, delay) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            func();
+            resolve();
+          }, delay || 0);
+        });
+      }
+
       function CalculateHitPoints(a, d) {
         const { attackUnit, attackerStength, attackTerrain } = a;
         const { defenceUnit, defenderStength, defenceTerrain } = d;
@@ -1548,7 +1797,7 @@
         const attackerDamageAfterTerrain =
           attackerDamage / TerrainBonus(defenceTerrain);
 
-        defenceUnit.hitPoints =
+        GlobalState.units[d.player][defenceUnit.id].hitPoints =
           defenceUnit.hitPoints - attackerDamageAfterTerrain;
 
         if (defenceUnit.hitPoints > 0) {
@@ -1558,8 +1807,63 @@
           const defenderDamageAfterTerrain =
             defenderDamage / TerrainBonus(attackTerrain);
 
-          attackUnit.hitPoints =
+          GlobalState.units[a.player][attackUnit.id].hitPoints =
             attackUnit.hitPoints - defenderDamageAfterTerrain;
+        }
+      }
+    </script>
+
+    <script>
+      /* Unit Animation */
+
+      async function AnimateCurrentUnitMovement() {
+        const { currentSelectedUnitElement, path } = GlobalState;
+
+        const translations = path.reduce((acc, tileData, index) => {
+          const nextTileData = path[index + 1];
+
+          if (!nextTileData) {
+            return acc;
+          }
+
+          const last = acc[acc.length - 1];
+
+          const prevTranslation = last
+            ? last.keyframes[1].transform
+            : 'translate(0, 0)';
+          const prevX = last ? last.position.x : 0;
+          const prevY = last ? last.position.y : 0;
+
+          const currentTileRect = tileData.element.getBoundingClientRect();
+          const nextTileRect = nextTileData.element.getBoundingClientRect();
+
+          const X = nextTileRect.left - currentTileRect.left + prevX;
+          const Y = nextTileRect.top - currentTileRect.top + prevY;
+
+          return [
+            ...acc,
+            {
+              keyframes: [
+                { transform: prevTranslation },
+                { transform: `translate(${X}px, ${Y}px)` },
+              ],
+              options: { duration: 1000 / path.length, easing: 'linear' },
+              position: { x: X, y: Y },
+            },
+          ];
+        }, []);
+
+        console.log(translations);
+
+        RunAnimations(currentSelectedUnitElement, translations).then(() => {
+          console.log('Finished');
+        });
+      }
+
+      async function RunAnimations(element, animations) {
+        for (const animation of animations) {
+          await element.animate(animation.keyframes, animation.options)
+            .finished;
         }
       }
     </script>
@@ -1620,7 +1924,7 @@
             return;
           }
 
-          RemoveUnitElement();
+          //RemoveUnitElement();
 
           if (CheckRangeAttack()) {
             ResetPath();
@@ -1641,8 +1945,10 @@
               return;
             }
           }
-          ResetPath();
           PlayMovementSound();
+          AnimateCurrentUnitMovement();
+          return;
+          ResetPath();
 
           if (AdjacentEnemyUnits()) {
             AddUnitElement({
