@@ -387,7 +387,7 @@
           case 'tank_fire':
             return baseUrl + 'tank_fire.wav';
           case 'tank_move':
-            return baseUrl + 'tank_move.wav';
+            return baseUrl + 'tank_move_short.wav';
           case 'vechicle_move':
             return baseUrl + 'vechicle_move.wav';
           case 'battleship_fire':
@@ -1291,10 +1291,7 @@
 
         if (attackUnit.type === 'infantry') {
           if (defenceUnit.type === 'infantry') {
-            PlaySounds([
-              { type: 'infantry_fire', delay: 0 },
-              { type: 'infantry_fire', delay: 500 },
-            ]);
+            PlaySounds([{ type: 'infantry_fire', delay: 0 }]);
             CalculateHitPoints(
               {
                 attackUnit,
@@ -1311,10 +1308,7 @@
             );
           }
           if (defenceUnit.type === 'rpg') {
-            PlaySounds([
-              { type: 'infantry_fire', delay: 0 },
-              { type: 'infantry_fire', delay: 500 },
-            ]);
+            PlaySounds([{ type: 'infantry_fire', delay: 0 }]);
             CalculateHitPoints(
               {
                 attackUnit,
@@ -1331,10 +1325,7 @@
             );
           }
           if (defenceUnit.type === 'tank') {
-            PlaySounds([
-              { type: 'infantry_fire', delay: 0 },
-              { type: 'tank_fire', delay: 500 },
-            ]);
+            PlaySounds([{ type: 'infantry_fire', delay: 0 }]);
             CalculateHitPoints(
               {
                 attackUnit,
@@ -1388,10 +1379,7 @@
 
         if (attackUnit.type === 'rpg') {
           if (defenceUnit.type === 'infantry') {
-            PlaySounds([
-              { type: 'infantry_fire', delay: 0 },
-              { type: 'infantry_fire', delay: 500 },
-            ]);
+            PlaySounds([{ type: 'infantry_fire', delay: 0 }]);
             CalculateHitPoints(
               {
                 attackUnit,
@@ -1408,10 +1396,7 @@
             );
           }
           if (defenceUnit.type === 'rpg') {
-            PlaySounds([
-              { type: 'infantry_fire', delay: 0 },
-              { type: 'infantry_fire', delay: 500 },
-            ]);
+            PlaySounds([{ type: 'infantry_fire', delay: 0 }]);
             CalculateHitPoints(
               {
                 attackUnit,
@@ -1428,10 +1413,7 @@
             );
           }
           if (defenceUnit.type === 'tank') {
-            PlaySounds([
-              { type: 'rpg_fire', delay: 0 },
-              { type: 'tank_fire', delay: 500 },
-            ]);
+            PlaySounds([{ type: 'rpg_fire', delay: 0 }]);
             CalculateHitPoints(
               {
                 attackUnit,
@@ -1485,10 +1467,7 @@
 
         if (attackUnit.type === 'tank') {
           if (defenceUnit.type === 'infantry') {
-            PlaySounds([
-              { type: 'tank_fire', delay: 0 },
-              { type: 'infantry_fire', delay: 500 },
-            ]);
+            PlaySounds([{ type: 'tank_fire', delay: 0 }]);
             CalculateHitPoints(
               {
                 attackUnit,
@@ -1505,10 +1484,7 @@
             );
           }
           if (defenceUnit.type === 'rpg') {
-            PlaySounds([
-              { type: 'tank_fire', delay: 0 },
-              { type: 'rpg_fire', delay: 500 },
-            ]);
+            PlaySounds([{ type: 'tank_fire', delay: 0 }]);
             CalculateHitPoints(
               {
                 attackUnit,
@@ -1525,10 +1501,7 @@
             );
           }
           if (defenceUnit.type === 'tank') {
-            PlaySounds([
-              { type: 'tank_fire', delay: 0 },
-              { type: 'tank_fire', delay: 500 },
-            ]);
+            PlaySounds([{ type: 'tank_fire', delay: 0 }]);
             CalculateHitPoints(
               {
                 attackUnit,
@@ -1823,8 +1796,15 @@
       /* Unit Animation */
 
       async function AnimateCurrentUnitMovement() {
-        const { currentSelectedUnitElement, animation } = GlobalState;
+        const { currentSelectedUnitElement, animation, units, playerTurn } =
+          GlobalState;
         const { path } = animation;
+
+        const { type } = units[playerTurn][currentSelectedUnitElement.id];
+
+        if (type === 'infantry' || type === 'rpg') {
+          return Promise.resolve();
+        }
 
         const translations = path.reduce((acc, tileData, index) => {
           const nextTileData = path[index + 1];
