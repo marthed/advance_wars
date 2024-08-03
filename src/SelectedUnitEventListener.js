@@ -1,12 +1,32 @@
+import { GlobalState } from './GlobalState.js';
+import {
+  GetNextTileNumber,
+  IsUndoMove,
+  UndoMove,
+  AlreadyMovedOnTile,
+  EnemyUnitBlocking,
+  CanMoveInTerrain,
+  ReachedMovementRange,
+  AddPath,
+  TileIsOccupied,
+  CheckRangeAttack,
+  SetPathForAnimation,
+  ResetPath,
+} from './UnitMovementLogic.js';
+import { AnimateCurrentUnitMovement } from './UnitAnimation.js';
+import { AddUnitElement, RemoveUnitElement } from './UnitUtils.js';
+import { AdjacentEnemyUnits, SelectTargetEnemy } from './UnitActionModal.js';
+import { ResetSelectedTile, DeselectUnit } from './UnitSelectionUtils.js';
+import { PlayMovementSound } from './Audio.js';
+
 export const SelectedUnitEventListener = async (event) => {
   const { key } = event;
-  const { path, currentSelectedUnitTile } = GlobalState;
   event.preventDefault();
   event.stopPropagation();
 
   if (
     ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].find(
-      (command) => command === key
+      (command) => command === key,
     )
   ) {
     const nextTileNumber = GetNextTileNumber(key);
@@ -44,7 +64,7 @@ export const SelectedUnitEventListener = async (event) => {
 
   if (key === 'Enter') {
     const currentTile = document.getElementById(
-      `tile-${GlobalState.currentTileId}`
+      `tile-${GlobalState.currentTileId}`,
     );
 
     document.removeEventListener('keydown', SelectedUnitEventListener);

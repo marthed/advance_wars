@@ -1,4 +1,6 @@
-const roadMappings = [
+import { CreateTerrainImage } from './GenerateMap.js';
+
+export const roadMappings = [
   160, 161, 162, 163, 164, 165, 205, 245, 246, 247, 248, 249, 250, 251, 252,
   212, 172, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 101, 61, 21,
 ];

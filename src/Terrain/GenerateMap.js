@@ -1,4 +1,6 @@
 /* Generate Map */
+import { roadMappings, CreateRoad } from './RoadTerrain.js';
+import { GlobalState } from '../GlobalState.js';
 
 export function GetSavedTerrain() {
   const item = window.localStorage.getItem('terrain');

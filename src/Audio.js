@@ -1,5 +1,5 @@
 /* Audio */
-
+import { GlobalState } from './GlobalState.js';
 export function GetSoundFileUrl(type) {
   const baseUrl = 'audio/';
 
@@ -40,7 +40,7 @@ export function PlaySound(type) {
 
 export function PlaySounds(soundArray) {
   if (soundArray.length) {
-    soundArray.forEach((sound, index) => {
+    soundArray.forEach((sound) => {
       setTimeout(() => {
         const player = new Audio();
         player.src = GetSoundFileUrl(sound.type);

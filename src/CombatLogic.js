@@ -1,4 +1,9 @@
 /* Combat Logic */
+import { GlobalState } from './GlobalState.js';
+import { GetTerrainType } from './Terrain/Utils.js';
+import { PlaySound, PlaySounds } from './Audio.js';
+import { GetUnitFromElement } from './UnitUtils.js';
+import { ResetSelectedTile } from './UnitSelectionUtils.js';
 
 export function TerrainBonus(terrainType) {
   if (terrainType === 'field') {
@@ -31,10 +36,24 @@ export function UnitDeath(unit, player) {
   // TODO: Do some animation
 }
 
+export function SetHitPoints(unit) {
+  const unitElement = unit.tileElement.querySelector('div.unit');
+  const hp = unitElement.querySelector('span.hp');
+
+  const hitPoints = Math.round(Number(unit.hitPoints));
+
+  if (hitPoints === 100) {
+    hp.innerHTML = String(hitPoints);
+  } else if (hitPoints > 9) {
+    hp.innerHTML = String(hitPoints).substring(0, 2);
+  } else {
+    hp.innerHTML = String(hitPoints);
+  }
+}
+
 export async function Attack() {
   const {
     currentSelectedUnitElement,
-    currentSelectedUnitTile,
     targetEnemyUnitTile,
     playerTurn,
     currentTileId,
@@ -50,7 +69,7 @@ export async function Attack() {
   const defenceUnit = GlobalState.units[enemyPlayer][enemyElement.id];
 
   const attackTerrain = GetTerrainType(
-    document.getElementById(`tile-${currentTileId}`)
+    document.getElementById(`tile-${currentTileId}`),
   );
   const defenceTerrain = GetTerrainType(targetEnemyUnitTile);
 
@@ -69,7 +88,7 @@ export async function Attack() {
           defenderStength: 50,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'rpg') {
@@ -86,7 +105,7 @@ export async function Attack() {
           defenderStength: 50,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'tank') {
@@ -103,7 +122,7 @@ export async function Attack() {
           defenderStength: 80,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'battleship') {
@@ -120,7 +139,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'rockets') {
@@ -137,7 +156,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
   }
@@ -157,7 +176,7 @@ export async function Attack() {
           defenderStength: 50,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'rpg') {
@@ -174,7 +193,7 @@ export async function Attack() {
           defenderStength: 50,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'tank') {
@@ -191,7 +210,7 @@ export async function Attack() {
           defenderStength: 40,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'battleship') {
@@ -208,7 +227,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'rockets') {
@@ -225,7 +244,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
   }
@@ -245,7 +264,7 @@ export async function Attack() {
           defenderStength: 10,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'rpg') {
@@ -262,7 +281,7 @@ export async function Attack() {
           defenderStength: 70,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'tank') {
@@ -279,7 +298,7 @@ export async function Attack() {
           defenderStength: 50,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'battleship') {
@@ -296,7 +315,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'rockets') {
@@ -313,7 +332,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
   }
@@ -333,7 +352,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'rpg') {
@@ -349,7 +368,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'tank') {
@@ -365,7 +384,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'battleship') {
@@ -381,7 +400,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
     if (defenceUnit.type === 'rockets') {
@@ -397,7 +416,7 @@ export async function Attack() {
           defenderStength: 0,
           defenceTerrain,
           player: enemyPlayer,
-        }
+        },
       );
     }
   }
@@ -423,9 +442,9 @@ export async function Attack() {
               defenderStength: 0,
               defenceTerrain,
               player: enemyPlayer,
-            }
+            },
           ),
-        impactDelay
+        impactDelay,
       );
     }
     if (defenceUnit.type === 'rpg') {
@@ -443,9 +462,9 @@ export async function Attack() {
               defenderStength: 0,
               defenceTerrain,
               player: enemyPlayer,
-            }
+            },
           ),
-        impactDelay
+        impactDelay,
       );
     }
     if (defenceUnit.type === 'tank') {
@@ -463,9 +482,9 @@ export async function Attack() {
               defenderStength: 0,
               defenceTerrain,
               player: enemyPlayer,
-            }
+            },
           ),
-        impactDelay
+        impactDelay,
       );
     }
     if (defenceUnit.type === 'battleship') {
@@ -483,9 +502,9 @@ export async function Attack() {
               defenderStength: 0,
               defenceTerrain,
               player: enemyPlayer,
-            }
+            },
           ),
-        impactDelay
+        impactDelay,
       );
     }
     if (defenceUnit.type === 'rockets') {
@@ -503,9 +522,9 @@ export async function Attack() {
               defenderStength: 0,
               defenceTerrain,
               player: enemyPlayer,
-            }
+            },
           ),
-        impactDelay
+        impactDelay,
       );
     }
   }

@@ -1,3 +1,4 @@
+import { GenerateUnitId, GetUnitLogic } from '../UnitUtils.js';
 export class Unit {
   id = '';
   type = '';

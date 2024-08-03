@@ -1,20 +1,30 @@
 {
-  "env": {
-    "browser": true,
-    "es2021": true
-  },
-  "extends": [
-    "eslint:recommended",
-    "plugin:esbenp.prettier-vscode/recommended"
-  ],
-  "parserOptions": {
-    "ecmaVersion": 12,
-    "sourceType": "module"
-  },
-  "plugins": [
-    "esbenp.prettier-vscode"
-  ],
-  "rules": {
-    "prettier/prettier": "error"
-  }
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:import/errors",
+        "plugin:import/warnings",
+        "plugin:import/typescript",
+    ],
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module",
+        "requireConfigFile": false,
+        "babelOptions": {
+            "presets": ["@babel/preset-env"]
+        }
+    },
+    "plugins": [
+        "html"
+    ],
+    "rules": {
+        "semi": ["error", "always"],
+        "quotes": ["error", "single"],
+        "no-multiple-empty-lines": ["error", { "max": 1, "maxEOF": 0 }],
+        "import/extensions": ["error", "always", { "js": "always", "jsx": "never" }]
+    }
 }

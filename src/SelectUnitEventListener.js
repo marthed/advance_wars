@@ -1,13 +1,17 @@
-/* Game Interactive Logic */
+import { GlobalState } from './GlobalState.js';
+import { SelectedUnitEventListener } from './SelectedUnitEventListener.js';
+import { ResetPath, AddTileData } from './UnitMovementLogic.js';
+import { GetTileId } from './Terrain/Utils.js';
+import { ResetSelectedTile } from './UnitSelectionUtils.js';
 export const SelectUnit = (event) => {
   const { target } = event;
-  const { currentSelectedUnitTile, path, currentTileId } = GlobalState;
+  const { currentSelectedUnitTile } = GlobalState;
 
   if (currentSelectedUnitTile) {
     document.removeEventListener('keydown', SelectedUnitEventListener);
     GlobalState.currentSelectedUnitTile.addEventListener(
       'mousedown',
-      SelectUnit
+      SelectUnit,
     );
 
     ResetPath();

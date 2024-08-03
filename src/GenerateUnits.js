@@ -1,3 +1,12 @@
+import {
+  startPositionsPlayer1,
+  startPositionsPlayer2,
+} from './SetupSettings.js';
+import { GlobalState } from './GlobalState.js';
+import { CreateUnitElement } from './UnitUtils.js';
+import { SetHitPoints } from './CombatLogic.js';
+import { SelectUnit } from './SelectUnitEventListener.js';
+
 export function GenerateUnits() {
   document
     .getElementById('stats-player')

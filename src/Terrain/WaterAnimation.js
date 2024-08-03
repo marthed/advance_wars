@@ -1,20 +1,24 @@
 /* Water animation */
-const { waterTiles } = GlobalState.terrain;
+import { GlobalState } from '../GlobalState.js';
 
-const WaterAnimation = {
-  numberOfTilesPerInterval: waterTiles.length,
-  max: waterTiles.length - 1,
-  min: 0,
-  paths: ['water.png', 'water_1.png', 'water_2.png', 'water_3.png'],
-};
+export function CreateWaterAnimation() {
+  const { waterTiles } = GlobalState.terrain;
 
-setInterval(() => {
-  const { numberOfTilesPerInterval, max, min, paths } = WaterAnimation;
+  const WaterAnimation = {
+    numberOfTilesPerInterval: waterTiles.length,
+    max: waterTiles.length - 1,
+    min: 0,
+    paths: ['water.png', 'water_1.png', 'water_2.png', 'water_3.png'],
+  };
 
-  for (let i = 0; i < numberOfTilesPerInterval; i++) {
-    const index = Math.floor(Math.random() * (max - min + 1)) + min;
-    const image = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
+  setInterval(() => {
+    const { numberOfTilesPerInterval, max, min, paths } = WaterAnimation;
 
-    waterTiles[index].src = `terrain/${paths[image]}`;
-  }
-}, 2000);
+    for (let i = 0; i < numberOfTilesPerInterval; i++) {
+      const index = Math.floor(Math.random() * (max - min + 1)) + min;
+      const image = Math.floor(Math.random() * (3 - 0 + 1)) + 0;
+
+      waterTiles[index].src = `terrain/${paths[image]}`;
+    }
+  }, 2000);
+}

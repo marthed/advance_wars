@@ -1,3 +1,4 @@
+import { Unit } from './Classes/UnitClass.js';
 /* Initial values */
 export const startPositionsPlayer1 = [
   { tile: '84', unit: new Unit('infantry') },

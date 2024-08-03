@@ -1,4 +1,5 @@
 /* Unit Animation */
+import { GlobalState } from './GlobalState.js';
 
 export async function AnimateCurrentUnitMovement() {
   const { currentSelectedUnitElement, animation, units, playerTurn } =
