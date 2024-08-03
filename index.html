@@ -15,28 +15,7 @@
       <div class="unit-action-modal__option">No Attack</div>
     </div>
 
-    <script>
-      let GlobalState = {
-        path: [], // TileData for current unit path
-        currentTileId: null, // number
-        currentSelectedUnitTile: null, // element
-        currentSelectedUnitElement: null,
-        adjacentEnemyTiles: [],
-        targetEnemyUnitTile: null,
-        units: { 1: {}, 2: {}, 3: {}, 4: {} },
-        turn: 1,
-        playerTurn: 1,
-        numberOfPlayers: 2,
-        playerColors: { 1: 'green', 2: 'red', 3: 'blue', 4: 'yellow' },
-        terrain: {
-          htmlMap: null,
-          waterTiles: [],
-        },
-        animation: {},
-      };
-    </script>
-
-    <script src="src/Terrain/RoadTerrain.js"></script>
+    <!-- <script src="src/Terrain/RoadTerrain.js"></script>
     <script src="src/Terrain/GenerateMap.js"></script>
     <script src="src/Terrain/WaterAnimation.js"></script>
     <script src="src/Terrain/SetupTerrain.js"></script>
@@ -44,7 +23,7 @@
     <script src="src/Classes/TileDataClass.js"></script>
     <script src="src/Classes/UnitClass.js"></script>
 
-    <script src="src/Audio.js"></script>
+    <script src="src/Audio.js"></script> -->
     <script>
       /* Functions */
 
@@ -836,17 +815,17 @@
       }
     </script>
 
-    <script src="src/CombatLogic.js"></script>
+    <!-- <script src="src/CombatLogic.js"></script>
     <script src="src/UnitAnimation.js"></script>
 
     <script src="src/SelectedUnitEventListener.js"></script>
     <script src="src/SelectUnitEventListener.js"></script>
-    <script src="src/EndTurnEventListener.js"></script>
+    <script src="src/EndTurnEventListener.js"></script> -->
 
-    <script src="src/SetupSettings.js"></script>
-    <script src="src/GenerateUnits.js"></script>
+    <!-- <script src="src/SetupSettings.js"></script>
+    <script src="src/GenerateUnits.js"></script> -->
 
-    <script src="Main.js"></script>
+    <script type="module" src="Main.js"></script>
 
     <script></script>
   </body>

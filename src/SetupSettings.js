@@ -1,5 +1,5 @@
 /* Initial values */
-const startPositionsPlayer1 = [
+export const startPositionsPlayer1 = [
   { tile: '84', unit: new Unit('infantry') },
   { tile: '85', unit: new Unit('infantry') },
   { tile: '86', unit: new Unit('infantry') },
@@ -11,7 +11,7 @@ const startPositionsPlayer1 = [
   { tile: '245', unit: new Unit('rockets') },
 ];
 
-const startPositionsPlayer2 = [
+export const startPositionsPlayer2 = [
   { tile: '93', unit: new Unit('infantry') },
   { tile: '94', unit: new Unit('infantry') },
   { tile: '95', unit: new Unit('infantry') },

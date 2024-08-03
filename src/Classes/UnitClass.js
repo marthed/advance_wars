@@ -1,4 +1,4 @@
-class Unit {
+export class Unit {
   id = '';
   type = '';
   movementRange = 0;

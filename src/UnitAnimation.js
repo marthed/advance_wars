@@ -1,6 +1,6 @@
 /* Unit Animation */
 
-async function AnimateCurrentUnitMovement() {
+export async function AnimateCurrentUnitMovement() {
   const { currentSelectedUnitElement, animation, units, playerTurn } =
     GlobalState;
   const { path } = animation;
@@ -48,7 +48,7 @@ async function AnimateCurrentUnitMovement() {
   return RunAnimations(currentSelectedUnitElement, translations);
 }
 
-async function RunAnimations(element, animations) {
+export async function RunAnimations(element, animations) {
   for (const animation of animations) {
     await element.animate(animation.keyframes, animation.options).finished;
   }

@@ -3,7 +3,7 @@ const roadMappings = [
   212, 172, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 101, 61, 21,
 ];
 
-function CreateRoad(tile) {
+export function CreateRoad(tile) {
   const tileIndex = Number(tile.id.split('-')[1]);
   tile.classList.add('terrain-road');
 

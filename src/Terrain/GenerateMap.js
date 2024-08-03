@@ -1,6 +1,6 @@
 /* Generate Map */
 
-function GetSavedTerrain() {
+export function GetSavedTerrain() {
   const item = window.localStorage.getItem('terrain');
 
   if (item) {
@@ -8,7 +8,7 @@ function GetSavedTerrain() {
     return savedTerrain;
   }
 }
-function GenerateSavedTerrain(savedTerrain = []) {
+export function GenerateSavedTerrain(savedTerrain = []) {
   const serializableTerrainMap = [];
 
   for (let i = 0; i < savedTerrain.length; i++) {
@@ -39,7 +39,7 @@ function GenerateSavedTerrain(savedTerrain = []) {
     GlobalState.terrain.htmlMap.appendChild(element);
   }
 }
-function GenerateNewTerrain(size) {
+export function GenerateNewTerrain(size) {
   const serializableTerrainMap = [];
 
   for (let i = 0; i < size; i++) {
@@ -94,7 +94,7 @@ function GenerateNewTerrain(size) {
 }
 
 /* Terrain Generation */
-function CreateTerrainImage(terrainType, config = {}) {
+export function CreateTerrainImage(terrainType, config = {}) {
   const img = document.createElement('img');
   img.classList.add('terrain-image');
 

@@ -1,5 +1,5 @@
 /* Game Interactive Logic */
-const SelectUnit = (event) => {
+export const SelectUnit = (event) => {
   const { target } = event;
   const { currentSelectedUnitTile, path, currentTileId } = GlobalState;
 

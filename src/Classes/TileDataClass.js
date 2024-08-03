@@ -1,4 +1,4 @@
-class TileData {
+export class TileData {
   id = '';
   terrainColor = '';
   element = null;

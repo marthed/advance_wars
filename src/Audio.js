@@ -1,6 +1,6 @@
 /* Audio */
 
-function GetSoundFileUrl(type) {
+export function GetSoundFileUrl(type) {
   const baseUrl = 'audio/';
 
   switch (type) {
@@ -29,7 +29,7 @@ function GetSoundFileUrl(type) {
   }
 }
 
-function PlaySound(type) {
+export function PlaySound(type) {
   const player = new Audio();
 
   player.src = GetSoundFileUrl(type);
@@ -38,7 +38,7 @@ function PlaySound(type) {
   player.play();
 }
 
-function PlaySounds(soundArray) {
+export function PlaySounds(soundArray) {
   if (soundArray.length) {
     soundArray.forEach((sound, index) => {
       setTimeout(() => {
@@ -52,7 +52,7 @@ function PlaySounds(soundArray) {
   }
 }
 
-function PlayMovementSound() {
+export function PlayMovementSound() {
   const { currentSelectedUnitElement, playerTurn, units } = GlobalState;
 
   const unit = units[playerTurn][currentSelectedUnitElement.id];

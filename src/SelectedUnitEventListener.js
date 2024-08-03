@@ -1,4 +1,4 @@
-const SelectedUnitEventListener = async (event) => {
+export const SelectedUnitEventListener = async (event) => {
   const { key } = event;
   const { path, currentSelectedUnitTile } = GlobalState;
   event.preventDefault();

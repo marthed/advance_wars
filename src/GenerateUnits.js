@@ -1,4 +1,4 @@
-function GenerateUnits() {
+export function GenerateUnits() {
   document
     .getElementById('stats-player')
     .classList.add(`color-${GlobalState.playerColors[GlobalState.playerTurn]}`);

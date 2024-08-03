@@ -1,4 +1,4 @@
-function SetupTerrain() {
+export function SetupTerrain() {
   GlobalState.terrain.htmlMap = document.getElementById('map');
   GlobalState.terrain.waterTiles = [];
 

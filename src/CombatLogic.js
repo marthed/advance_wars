@@ -1,6 +1,6 @@
 /* Combat Logic */
 
-function TerrainBonus(terrainType) {
+export function TerrainBonus(terrainType) {
   if (terrainType === 'field') {
     return 1.25;
   }
@@ -21,7 +21,7 @@ function TerrainBonus(terrainType) {
   }
 }
 
-function UnitDeath(unit, player) {
+export function UnitDeath(unit, player) {
   const unitElement = unit.tileElement.querySelector('div.unit');
 
   unit.tileElement.removeChild(unitElement);
@@ -31,7 +31,7 @@ function UnitDeath(unit, player) {
   // TODO: Do some animation
 }
 
-async function Attack() {
+export async function Attack() {
   const {
     currentSelectedUnitElement,
     currentSelectedUnitTile,
@@ -524,7 +524,7 @@ async function Attack() {
   }
 }
 
-async function Delay(func, delay) {
+export async function Delay(func, delay) {
   return new Promise((resolve) => {
     setTimeout(() => {
       func();
@@ -533,7 +533,7 @@ async function Delay(func, delay) {
   });
 }
 
-function CalculateHitPoints(a, d) {
+export function CalculateHitPoints(a, d) {
   const { attackUnit, attackerStength, attackTerrain } = a;
   const { defenceUnit, defenderStength, defenceTerrain } = d;
 
