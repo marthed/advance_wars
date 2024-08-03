@@ -1,0 +1,3 @@
+SetupTerrain();
+
+GenerateUnits();
