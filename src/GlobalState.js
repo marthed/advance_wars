@@ -16,3 +16,5 @@ export let GlobalState = {
   },
   animation: {},
 };
+
+window.GlobalState = GlobalState;

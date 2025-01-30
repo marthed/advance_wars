@@ -4,6 +4,7 @@ import { GetTerrainType } from './Terrain/Utils.js';
 import { PlaySound, PlaySounds } from './Audio.js';
 import { GetUnitFromElement } from './UnitUtils.js';
 import { ResetSelectedTile } from './UnitSelectionUtils.js';
+import { GameIsOver, GameOver } from './GameOver.js';
 
 export function TerrainBonus(terrainType) {
   if (terrainType === 'field') {
@@ -34,6 +35,10 @@ export function UnitDeath(unit, player) {
   delete GlobalState.units[player][unit.id];
 
   // TODO: Do some animation
+
+  if (GameIsOver()) {
+    GameOver();
+  }
 }
 
 export function SetHitPoints(unit) {

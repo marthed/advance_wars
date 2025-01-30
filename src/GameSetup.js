@@ -9,7 +9,6 @@ export function GameSetup() {
       gameModalElement.innerHTML = html;
 
       function StartGame() {
-        console.log('hej');
         document.getElementById('game-modal').classList.add('hidden');
         document.getElementById('global-modal').classList.add('hidden');
       }
