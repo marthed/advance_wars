@@ -24,6 +24,8 @@ export function GetSoundFileUrl(type) {
       return baseUrl + 'battleship_fire.wav';
     case 'battleship_move':
       return baseUrl + 'battleship_move.wav';
+    case 'start_game':
+      return baseUrl + 'startgame.mp3';
     default:
       return '';
   }
