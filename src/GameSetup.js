@@ -5,19 +5,39 @@ export function GameSetup() {
 
   gameModalElement.classList.remove('hidden');
 
+  const parser = new DOMParser();
+
   let startModalElement;
   let instructionsElement;
 
   fetch('./src/Modals/instructions.html')
     .then((res) => res.text())
     .then((html) => {
-      instructionsElement = html;
+      instructionsElement = parser
+        .parseFromString(html, 'text/html')
+        .getElementById('instructions');
+
+      function GoBack() {
+        console.log('Go Back');
+        if (startModalElement) {
+          gameModalElement.appendChild(startModalElement);
+          gameModalElement.removeChild(instructionsElement);
+        }
+      }
+
+      const image = instructionsElement.querySelector('img');
+
+      image.addEventListener('click', GoBack);
     });
 
   fetch('./src/Modals/startModal.html')
     .then((res) => res.text())
     .then((html) => {
-      gameModalElement.innerHTML = html;
+      startModalElement = parser
+        .parseFromString(html, 'text/html')
+        .getElementById('start-modal');
+
+      gameModalElement.appendChild(startModalElement);
 
       function StartGame() {
         PlaySound('start_game');
@@ -26,7 +46,9 @@ export function GameSetup() {
       }
 
       function ShowInstructions() {
-        gameModalElement.innerHTML = instructionsElement;
+        gameModalElement.appendChild(instructionsElement);
+        gameModalElement.removeChild(startModalElement);
+        //gameModalElement.innerHTML = instructionsElement.body.innerHTML;
       }
 
       document
@@ -36,8 +58,6 @@ export function GameSetup() {
       document
         .getElementById('start-modal__instructions')
         .addEventListener('click', ShowInstructions);
-
-      startModalElement = html;
     })
     .catch((error) => {
       console.log(error);
