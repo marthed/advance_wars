@@ -41,6 +41,7 @@ export function GameSetup() {
 
       function StartGame() {
         PlaySound('start_game');
+        document.getElementById('header-bar').classList.remove('none');
         document.getElementById('game-modal').classList.add('hidden');
         document.getElementById('global-modal').classList.add('hidden');
       }

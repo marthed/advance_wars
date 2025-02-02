@@ -147,17 +147,26 @@ body {
   z-index: 1;
 }
 
-.stats {
+.header-bar {
   position: -webkit-sticky; /* For Safari */
   position: sticky;
   top: 0;
   width: 100vw;
+  height: 40px;
+  background-color: #d2cebd;
+  z-index: 10000;
+}
+
+.stats {
   display: flex;
   justify-content: center;
   flex: 0 0 auto;
-  height: 40px;
-  background-color: bisque;
-  z-index: 10000;
+  width: 100%;
+  height: 100%;
+}
+
+.none {
+  display: none;
 }
 
 .stats-item {
