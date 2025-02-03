@@ -15,6 +15,7 @@ export let GlobalState = {
     waterTiles: [],
   },
   animation: {},
+  volume: 1,
 };
 
 window.GlobalState = GlobalState;

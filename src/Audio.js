@@ -26,15 +26,24 @@ export function GetSoundFileUrl(type) {
       return baseUrl + 'battleship_move.wav';
     case 'start_game':
       return baseUrl + 'startgame.mp3';
+    case 'menu_button':
+      return baseUrl + 'menu_1.wav';
+    case 'confirm':
+      return baseUrl + 'confirm.wav';
     default:
       return '';
   }
+}
+
+export function Mute() {
+  GlobalState.volume = 0;
 }
 
 export function PlaySound(type) {
   const player = new Audio();
 
   player.src = GetSoundFileUrl(type);
+  player.volume = GlobalState.volume;
 
   player.load();
   player.play();

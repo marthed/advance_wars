@@ -337,3 +337,42 @@ body {
   width: 100%;
   height: 100%;
 }
+
+#confirm-audio-modal {
+  width: 100%;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  border-radius: 6px;
+  color: white;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.confirm-audio-modal__options {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.confirm-audio-modal__options > button {
+  border: 0;
+  width: 100px;
+  padding: 12px;
+  margin-top: 20px;
+  transition: all 0.3s ease; /* Smooth animation */
+  min-width: 100px;
+  background-color: #d2cebd;
+  font-weight: bold;
+}
+
+.confirm-audio-modal__options > button:hover {
+  background-color: #f2eedf;
+}
+
+.confirm-audio-modal__options > :nth-child(1) {
+  margin-right: 12px;
+}
