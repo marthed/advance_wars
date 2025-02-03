@@ -222,6 +222,10 @@ body {
   background-color: rgb(83, 112, 138);
 }
 
+.unit-action-modal__option:focus {
+  outline: 12px solid blue;
+}
+
 .delimeter {
   border-bottom: 1px solid black;
 }

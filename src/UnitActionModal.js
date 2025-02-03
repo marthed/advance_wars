@@ -1,7 +1,6 @@
 import { GlobalState } from './GlobalState.js';
 import { GetTileId } from './Terrain/Utils.js';
 import { GetUnitFromElement, AddUnitElement } from './UnitUtils.js';
-import { UnitActionModalEvents } from './UnitActionModalEventListener.js';
 import { Attack } from './CombatLogic.js';
 import { ResetSelectedTile } from './UnitSelectionUtils.js';
 
@@ -32,6 +31,25 @@ function NoAttack() {
   });
   ResetSelectedTile();
 }
+let currentIndex = 0;
+let actions = [];
+
+const UnitActionModalEventListener = ({ key, shiftKey }) => {
+  if (key === 'ArrowRight' || key === 'Tab') {
+    event.preventDefault();
+    currentIndex = (currentIndex + 1) % 2;
+    actions[currentIndex].focus();
+  } else if (key === 'ArrowLeft' || (key === 'Tab' && shiftKey)) {
+    event.preventDefault();
+    currentIndex = (currentIndex - 1 + 2) % 2;
+    actions[currentIndex].focus();
+  } else if (key === 'Escape') {
+    CloseUnitActionModal();
+    SelectTargetEnemy();
+  } else if (key === 'Enter') {
+    actions[currentIndex].click();
+  }
+};
 
 export function OpenUnitActionModal() {
   const { currentTileId } = GlobalState;
@@ -46,18 +64,20 @@ export function OpenUnitActionModal() {
   modal.style.left = rect.left + 50 + 'px';
   modal.style.top = rect.top + 50 + 'px';
 
-  const actions = modal.querySelectorAll('div.unit-action-modal__option');
+  actions = modal.querySelectorAll('div.unit-action-modal__option');
 
-  const attack = actions[0];
-  const noAttack = actions[1];
+  const [attack, noAttack] = actions;
+
+  attack.focus();
 
   attack.addEventListener('click', PreAttack);
   noAttack.addEventListener('click', NoAttack);
-  document.addEventListener('keydown', UnitActionModalEvents);
+
+  document.addEventListener('keydown', UnitActionModalEventListener);
 }
 
 export function RemoveUnitActionModalEvents() {
-  document.removeEventListener('keydown', UnitActionModalEvents);
+  document.removeEventListener('keydown', UnitActionModalEventListener);
 
   const modal = document.getElementById('unit-action-modal');
 

@@ -2,14 +2,14 @@ import { Unit } from './Classes/UnitClass.js';
 /* Initial values */
 export const startPositionsPlayer1 = [
   { tile: '84', unit: new Unit('infantry') },
-  // { tile: '85', unit: new Unit('infantry') },
-  // { tile: '86', unit: new Unit('infantry') },
-  // { tile: '123', unit: new Unit('tank') },
-  // { tile: '124', unit: new Unit('tank') },
-  // { tile: '162', unit: new Unit('rpg') },
-  // { tile: '163', unit: new Unit('rpg') },
-  // { tile: '444', unit: new Unit('battleship') },
-  // { tile: '245', unit: new Unit('rockets') },
+  { tile: '85', unit: new Unit('infantry') },
+  { tile: '89', unit: new Unit('infantry') },
+  { tile: '123', unit: new Unit('tank') },
+  { tile: '124', unit: new Unit('tank') },
+  { tile: '162', unit: new Unit('rpg') },
+  { tile: '163', unit: new Unit('rpg') },
+  { tile: '444', unit: new Unit('battleship') },
+  { tile: '245', unit: new Unit('rockets') },
 ];
 
 export const startPositionsPlayer2 = [

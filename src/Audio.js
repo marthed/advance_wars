@@ -55,6 +55,7 @@ export function PlaySounds(soundArray) {
       setTimeout(() => {
         const player = new Audio();
         player.src = GetSoundFileUrl(sound.type);
+        player.volume = GlobalState.volume;
         player.load();
 
         player.play();
