@@ -27,6 +27,8 @@ export function GameOver() {
     .then((html) => {
       const parser = new DOMParser();
 
+      document.getElementById('header-bar').classList.add('none');
+
       const gameOverModalElement = parser.parseFromString(html, 'text/html');
       const imgElement = gameOverModalElement.querySelector('img');
 
