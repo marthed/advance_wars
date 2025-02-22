@@ -1,5 +1,8 @@
 import { GlobalState } from './GlobalState.js';
-import { SelectedUnitEventListener } from './SelectedUnitEventListener.js';
+import {
+  SelectedUnitEventListener,
+  SelectedUnitEventListenerTouch,
+} from './SelectedUnitEventListener.js';
 import { SelectUnit } from './SelectUnitEventListener.js';
 import { ResetPath } from './UnitMovementLogic.js';
 export function ResetSelectedTile() {
@@ -10,6 +13,7 @@ export function ResetSelectedTile() {
 
 export function DeselectUnit() {
   document.removeEventListener('keydown', SelectedUnitEventListener);
+  document.removeEventListener('mousedown', SelectedUnitEventListenerTouch);
   GlobalState.currentSelectedUnitTile?.addEventListener(
     'mousedown',
     SelectUnit,

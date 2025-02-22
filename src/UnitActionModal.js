@@ -1,6 +1,10 @@
 import { GlobalState } from './GlobalState.js';
 import { GetTileId } from './Terrain/Utils.js';
-import { GetUnitFromElement, AddUnitElement } from './UnitUtils.js';
+import {
+  GetUnitFromElement,
+  AddUnitElement,
+  MapDirection,
+} from './UnitUtils.js';
 import { Attack } from './CombatLogic.js';
 import { ResetSelectedTile } from './UnitSelectionUtils.js';
 
@@ -219,22 +223,6 @@ export function ChangeTargetEnemy() {
     });
 
     ResetSelectedTile();
-  }
-}
-
-function MapDirection(id) {
-  const { currentTileId } = GlobalState;
-  if (currentTileId - 1 === id) {
-    return 'ArrowLeft';
-  }
-  if (currentTileId + 1 === id) {
-    return 'ArrowRight';
-  }
-  if (currentTileId - 40 === id) {
-    return 'ArrowUp';
-  }
-  if (currentTileId + 40 === id) {
-    return 'ArrowDown';
   }
 }
 

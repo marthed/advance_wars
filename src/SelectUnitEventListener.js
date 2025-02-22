@@ -1,5 +1,8 @@
 import { GlobalState } from './GlobalState.js';
-import { SelectedUnitEventListener } from './SelectedUnitEventListener.js';
+import {
+  SelectedUnitEventListener,
+  SelectedUnitEventListenerTouch,
+} from './SelectedUnitEventListener.js';
 import { ResetPath, AddTileData } from './UnitMovementLogic.js';
 import { GetTileId } from './Terrain/Utils.js';
 import { ResetSelectedTile } from './UnitSelectionUtils.js';
@@ -8,7 +11,10 @@ export const SelectUnit = (event) => {
   const { currentSelectedUnitTile } = GlobalState;
 
   if (currentSelectedUnitTile) {
+    console.log('Remove eventlisteners');
     document.removeEventListener('keydown', SelectedUnitEventListener);
+    document.removeEventListener('mousedown', SelectedUnitEventListenerTouch);
+
     GlobalState.currentSelectedUnitTile.addEventListener(
       'mousedown',
       SelectUnit,
@@ -32,4 +38,8 @@ export const SelectUnit = (event) => {
     .classList.add('path__highlighted');
 
   document.addEventListener('keydown', SelectedUnitEventListener);
+
+  setTimeout(() => {
+    document.addEventListener('mousedown', SelectedUnitEventListenerTouch);
+  }, 0);
 };

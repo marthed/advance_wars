@@ -1,7 +1,7 @@
 import { GlobalState } from './GlobalState.js';
-import { GetTerrainType } from './Terrain/Utils.js';
+import { GetTerrainType, GetTileId } from './Terrain/Utils.js';
 import { TileData } from './Classes/TileDataClass.js';
-import { GetUnitIDFromTerrainElement } from './UnitUtils.js';
+import { GetUnitIDFromTerrainElement, MapDirection } from './UnitUtils.js';
 
 export function AddTileData(elem, command) {
   const id = elem.id.split('-')[1];
@@ -204,4 +204,113 @@ export function CheckRangeAttack() {
   if (!unit.directAttack) {
     return true;
   }
+}
+
+export function TileInMovementRange(targetTile, potentialTiles) {
+  console.log(potentialTiles);
+
+  return potentialTiles.find((tile) => {
+    const id = GetTileId(tile.tileElement);
+    return id === GetTileId(targetTile);
+  });
+}
+
+export function PotentialMovementTiles(options = {}) {
+  const { currentTileId, playerTurn, currentSelectedUnitElement, units } =
+    GlobalState;
+
+  const unit = units[playerTurn][currentSelectedUnitElement.id];
+
+  let surroundingTiles = [];
+
+  if (unit.movementRange) {
+    const { movementRange } = unit;
+
+    for (let i = movementRange; i > -1; i--) {
+      let up;
+      let down;
+
+      if (i !== 0) {
+        up = currentTileId + -40 * i;
+        down = currentTileId + 40 * i;
+        surroundingTiles.push(up);
+        surroundingTiles.push(down);
+
+        // const upElem = document.getElementById('tile-' + up);
+        // if (upElem) {
+        //   AddPath('ArrowUp', upElem);
+        // }
+
+        // const downElem = document.getElementById('tile-' + down);
+        // if (downElem) {
+        //   AddPath('ArrowUp', downElem);
+        // }
+      }
+
+      const rowTiles = movementRange - i;
+
+      for (let j = 1; j < rowTiles + 1; j++) {
+        if (i === 0) {
+          const left = currentTileId - j;
+          const right = currentTileId + j;
+          surroundingTiles.push(left);
+          surroundingTiles.push(right);
+
+          // const leftElem = document.getElementById('tile-' + left);
+          // if (leftElem) {
+          //   AddPath('ArrowUp', leftElem);
+          // }
+          // const rightElem = document.getElementById('tile-' + right);
+          // if (rightElem) {
+          //   AddPath('ArrowUp', rightElem);
+          // }
+        } else {
+          const upLeft = up - j;
+          const upRight = up + j;
+
+          const downLeft = down - j;
+          const downRight = down + j;
+
+          // const upLeftElem = document.getElementById('tile-' + upLeft);
+          // const upRightElem = document.getElementById('tile-' + upRight);
+          // const downLeftElem = document.getElementById('tile-' + downLeft);
+          // const downRightElem = document.getElementById('tile-' + downRight);
+
+          // if (upLeftElem) {
+          //   AddPath('ArrowUp', upLeftElem);
+          // }
+          // if (upRightElem) {
+          //   AddPath('ArrowUp', upRightElem);
+          // }
+          // if (downLeftElem) {
+          //   AddPath('ArrowUp', downLeftElem);
+          // }
+          // if (downRightElem) {
+          //   AddPath('ArrowUp', downRightElem);
+          // }
+
+          surroundingTiles.push(upLeft);
+          surroundingTiles.push(upRight);
+          surroundingTiles.push(downLeft);
+          surroundingTiles.push(downRight);
+        }
+      }
+    }
+  } else {
+    surroundingTiles = [
+      currentTileId - 1,
+      currentTileId + 1,
+      currentTileId - 40,
+      currentTileId + 40,
+    ];
+  }
+
+  surroundingTiles = surroundingTiles
+    .map((id) => ({
+      tileElement: document.getElementById(`tile-${id}`),
+      direction: options.range ? null : MapDirection(id),
+    }))
+    .filter((tile) => !!tile.tileElement);
+
+  return surroundingTiles;
 }

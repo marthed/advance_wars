@@ -1,10 +1,29 @@
 import { GlobalState } from './GlobalState.js';
-import { SelectedUnitEventListener } from './SelectedUnitEventListener.js';
+import {
+  SelectedUnitEventListener,
+  SelectedUnitEventListenerTouch,
+} from './SelectedUnitEventListener.js';
 import { SelectUnit } from './SelectUnitEventListener.js';
 
 /* Create unit */
 export function GenerateUnitId() {
   return 'unitId-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+}
+
+export function MapDirection(id) {
+  const { currentTileId } = GlobalState;
+  if (currentTileId - 1 === id) {
+    return 'ArrowLeft';
+  }
+  if (currentTileId + 1 === id) {
+    return 'ArrowRight';
+  }
+  if (currentTileId - 40 === id) {
+    return 'ArrowUp';
+  }
+  if (currentTileId + 40 === id) {
+    return 'ArrowDown';
+  }
 }
 
 export function CreateUnitElement(unit, player) {
@@ -130,6 +149,7 @@ export function GetUnitFromElement(terrainElement) {
 /* Remove */
 export function RemoveUnitElement() {
   document.removeEventListener('keydown', SelectedUnitEventListener);
+  document.removeEventListener('mousedown', SelectedUnitEventListenerTouch);
 
   const unitElement =
     GlobalState.currentSelectedUnitTile.querySelector('div.unit');
