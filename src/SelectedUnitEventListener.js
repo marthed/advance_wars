@@ -36,6 +36,8 @@ export const SelectedUnitEventListenerTouch = async (event) => {
     return;
   }
 
+  //ResetPath();
+
   // Kolla om rutan har terrain type som funkar för unit
   if (!CanMoveInTerrain(event.target)) {
     console.log('Cant move to this terrain');

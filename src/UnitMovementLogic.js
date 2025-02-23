@@ -229,9 +229,12 @@ function AddParentsToTargetPath(child, acc = []) {
     return acc;
   }
 
-  const { tileElement } = child;
+  const { tileElement, direction } = child;
 
-  return AddParentsToTargetPath(child.parent, [tileElement, ...acc]);
+  return AddParentsToTargetPath(child.parent, [
+    { tileElement, direction },
+    ...acc,
+  ]);
 }
 
 function CreatePathToTarget(tree) {
@@ -361,6 +364,9 @@ export function GeneratePath(target) {
   const pathsToTarget = CreatePathToTarget(tree);
   const shortestPath = GetShortestRoute(pathsToTarget);
   console.log(shortestPath);
+  shortestPath.slice(1).forEach((path) => {
+    AddPath(path.direction, path.tileElement);
+  });
 }
 
 export function PotentialMovementTiles() {
