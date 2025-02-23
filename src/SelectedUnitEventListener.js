@@ -14,6 +14,7 @@ import {
   ResetPath,
   PotentialMovementTiles,
   TileInMovementRange,
+  GeneratePath,
 } from './UnitMovementLogic.js';
 import { AnimateCurrentUnitMovement } from './UnitAnimation.js';
 import { AddUnitElement, RemoveUnitElement } from './UnitUtils.js';
@@ -49,11 +50,13 @@ export const SelectedUnitEventListenerTouch = async (event) => {
 
   const potentialMovementTiles = PotentialMovementTiles();
 
-  // Kolla om inom movement range
+  //Kolla om inom movement range
   if (!TileInMovementRange(event.target, potentialMovementTiles)) {
     console.log('Tile not in movement range of this unity');
     return;
   }
+
+  GeneratePath(event.target);
 
   // Sen räkna ut om tillräckligt med movement för att nå rutan (antal upp/ned och höger/vänster)
   // Om bara rakt:

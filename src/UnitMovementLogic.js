@@ -1,7 +1,7 @@
 import { GlobalState } from './GlobalState.js';
 import { GetTerrainType, GetTileId } from './Terrain/Utils.js';
 import { TileData } from './Classes/TileDataClass.js';
-import { GetUnitIDFromTerrainElement, MapDirection } from './UnitUtils.js';
+import { GetUnitIDFromTerrainElement } from './UnitUtils.js';
 
 export function AddTileData(elem, command) {
   const id = elem.id.split('-')[1];
@@ -207,15 +207,163 @@ export function CheckRangeAttack() {
 }
 
 export function TileInMovementRange(targetTile, potentialTiles) {
-  console.log(potentialTiles);
-
   return potentialTiles.find((tile) => {
     const id = GetTileId(tile.tileElement);
     return id === GetTileId(targetTile);
   });
 }
 
-export function PotentialMovementTiles(options = {}) {
+function GetShortestRoute(paths = []) {
+  let shortestPath = paths[0];
+
+  paths.forEach((path) => {
+    if (path.length < shortestPath.length) {
+      shortestPath = path;
+    }
+  });
+  return shortestPath;
+}
+
+function AddParentsToTargetPath(child, acc = []) {
+  if (!child) {
+    return acc;
+  }
+
+  const { tileElement } = child;
+
+  return AddParentsToTargetPath(child.parent, [tileElement, ...acc]);
+}
+
+function CreatePathToTarget(tree) {
+  let paths = [];
+  function ExtractPaths(child) {
+    if (child.target) {
+      const path = AddParentsToTargetPath(child);
+      paths.push(path);
+      return;
+    }
+    if (!child.children || child.children.length < 1) {
+      return;
+    }
+
+    child.children.forEach((c) => ExtractPaths(c));
+  }
+
+  ExtractPaths(tree);
+  console.log(paths);
+  return paths;
+}
+
+function BuildTree(parent, movements, maxMovement, target) {
+  if (movements === maxMovement) {
+    return null;
+  }
+
+  const { tileId, direction } = parent;
+
+  const up = direction !== 'down' ? tileId + -40 : null;
+  const down = direction !== 'up' ? tileId + 40 : null;
+  const right = direction !== 'left' ? tileId + 1 : null;
+  const left = direction !== 'right' ? tileId - 1 : null;
+
+  const upChild = up
+    ? {
+        children: [],
+        tileElement: document.getElementById(`tile-${up}`),
+        tileId: up,
+        direction: 'up',
+        parent,
+      }
+    : null;
+
+  if (up === target) {
+    return { ...parent, children: [{ ...upChild, target: true }] };
+  }
+
+  const downChild = down
+    ? {
+        children: [],
+        tileElement: document.getElementById(`tile-${down}`),
+        tileId: down,
+        direction: 'down',
+        parent,
+      }
+    : null;
+
+  if (down === target) {
+    return { ...parent, children: [{ ...downChild, target: true }] };
+  }
+
+  const rightChild = right
+    ? {
+        children: [],
+        tileElement: document.getElementById(`tile-${right}`),
+        tileId: right,
+        direction: 'right',
+        parent,
+      }
+    : null;
+
+  if (right === target) {
+    return { ...parent, children: [{ ...rightChild, target: true }] };
+  }
+
+  const leftChild = left
+    ? {
+        children: [],
+        tileElement: document.getElementById(`tile-${left}`),
+        tileId: left,
+        direction: 'left',
+        parent,
+      }
+    : null;
+
+  if (left === target) {
+    return {
+      ...parent,
+      children: [{ ...leftChild, target: true }],
+    };
+  }
+
+  const children = [upChild, downChild, leftChild, rightChild].filter(
+    (child) =>
+      child &&
+      child.tileElement &&
+      CanMoveInTerrain(child.tileElement) &&
+      !EnemyUnitBlocking(child.tileElement),
+  );
+
+  return {
+    ...parent,
+    children: children
+      .map((child) => BuildTree(child, movements + 1, maxMovement, target))
+      .filter((child) => child),
+  };
+}
+
+export function GeneratePath(target) {
+  const { currentTileId, playerTurn, currentSelectedUnitElement, units } =
+    GlobalState;
+
+  const unit = units[playerTurn][currentSelectedUnitElement.id];
+
+  const root = {
+    children: [],
+    tileElement: document.getElementById(`tile-${currentTileId}`),
+    tileId: currentTileId,
+    direction: null,
+    parent: null,
+  };
+
+  const tree = BuildTree(root, 0, unit.movementRange, GetTileId(target));
+  console.log(tree);
+
+  const pathsToTarget = CreatePathToTarget(tree);
+  const shortestPath = GetShortestRoute(pathsToTarget);
+  console.log(shortestPath);
+}
+
+export function PotentialMovementTiles() {
   const { currentTileId, playerTurn, currentSelectedUnitElement, units } =
     GlobalState;
 
@@ -233,8 +381,8 @@ export function PotentialMovementTiles(options = {}) {
       if (i !== 0) {
         up = currentTileId + -40 * i;
         down = currentTileId + 40 * i;
-        surroundingTiles.push(up);
-        surroundingTiles.push(down);
+        surroundingTiles.push({ id: up });
+        surroundingTiles.push({ id: down });
 
         // const upElem = document.getElementById('tile-' + up);
         // if (upElem) {
@@ -253,8 +401,8 @@ export function PotentialMovementTiles(options = {}) {
         if (i === 0) {
           const left = currentTileId - j;
           const right = currentTileId + j;
-          surroundingTiles.push(left);
-          surroundingTiles.push(right);
+          surroundingTiles.push({ id: left });
+          surroundingTiles.push({ id: right });
 
           // const leftElem = document.getElementById('tile-' + left);
           // if (leftElem) {
@@ -289,10 +437,16 @@ export function PotentialMovementTiles(options = {}) {
           //   AddPath('ArrowUp', downRightElem);
           // }
 
-          surroundingTiles.push(upLeft);
-          surroundingTiles.push(upRight);
-          surroundingTiles.push(downLeft);
-          surroundingTiles.push(downRight);
+          surroundingTiles.push({ id: upLeft });
+          surroundingTiles.push({
+            id: upRight,
+          });
+          surroundingTiles.push({
+            id: downLeft,
+          });
+          surroundingTiles.push({
+            id: downRight,
+          });
         }
       }
     }
@@ -306,9 +460,8 @@ export function PotentialMovementTiles(options = {}) {
   }
 
   surroundingTiles = surroundingTiles
-    .map((id) => ({
+    .map(({ id }) => ({
       tileElement: document.getElementById(`tile-${id}`),
-      direction: options.range ? null : MapDirection(id),
     }))
     .filter((tile) => !!tile.tileElement);
 
