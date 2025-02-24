@@ -12,6 +12,7 @@ import {
   CheckRangeAttack,
   SetPathForAnimation,
   ResetPath,
+  ResetPathFromTouch,
   PotentialMovementTiles,
   TileInMovementRange,
   GeneratePath,
@@ -24,7 +25,6 @@ import { PlayMovementSound } from './Audio.js';
 
 export const SelectedUnitEventListenerTouch = async (event) => {
   //const { key } = event;
-  console.log('Touch event');
   console.log(event.target.id);
   event.preventDefault();
   event.stopPropagation();
@@ -36,7 +36,7 @@ export const SelectedUnitEventListenerTouch = async (event) => {
     return;
   }
 
-  //ResetPath();
+  ResetPathFromTouch();
 
   // Kolla om rutan har terrain type som funkar för unit
   if (!CanMoveInTerrain(event.target)) {
@@ -71,7 +71,6 @@ export const SelectedUnitEventListenerTouch = async (event) => {
 };
 
 export const SelectedUnitEventListener = async (event) => {
-  console.log('Normal event');
   const { key } = event;
   event.preventDefault();
   event.stopPropagation();

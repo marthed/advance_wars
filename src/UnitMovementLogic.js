@@ -96,6 +96,15 @@ export function SetPathForAnimation() {
   GlobalState.animation.path = [...path];
 }
 
+export function ResetPathFromTouch() {
+  const paths = GlobalState.path.slice(1);
+
+  paths.forEach((tile) => {
+    tile.element.querySelector('.path').classList.remove('path__highlighted');
+    //tile.element.style.backgroundColor = tile.terrainColor;
+  });
+  GlobalState.path = GlobalState.path.slice(0, 1);
+}
 export function ResetPath() {
   GlobalState.path.forEach((tile) => {
     tile.element.querySelector('.path').classList.remove('path__highlighted');
@@ -253,7 +262,6 @@ function CreatePathToTarget(tree) {
   }
 
   ExtractPaths(tree);
-  console.log(paths);
   return paths;
 }
 
@@ -345,33 +353,43 @@ function BuildTree(parent, movements, maxMovement, target) {
 }
 
 export function GeneratePath(target) {
-  const { currentTileId, playerTurn, currentSelectedUnitElement, units } =
-    GlobalState;
+  const {
+    playerTurn,
+    currentSelectedUnitTile,
+    currentSelectedUnitElement,
+    units,
+  } = GlobalState;
+
+  const unitTileId = GetTileId(currentSelectedUnitTile);
 
   const unit = units[playerTurn][currentSelectedUnitElement.id];
 
   const root = {
     children: [],
-    tileElement: document.getElementById(`tile-${currentTileId}`),
-    tileId: currentTileId,
+    tileElement: document.getElementById(`tile-${unitTileId}`),
+    tileId: unitTileId,
     direction: null,
     parent: null,
   };
 
   const tree = BuildTree(root, 0, unit.movementRange, GetTileId(target));
-  console.log(tree);
 
   const pathsToTarget = CreatePathToTarget(tree);
   const shortestPath = GetShortestRoute(pathsToTarget);
-  console.log(shortestPath);
   shortestPath.slice(1).forEach((path) => {
     AddPath(path.direction, path.tileElement);
   });
 }
 
 export function PotentialMovementTiles() {
-  const { currentTileId, playerTurn, currentSelectedUnitElement, units } =
-    GlobalState;
+  const {
+    playerTurn,
+    currentSelectedUnitElement,
+    currentSelectedUnitTile,
+    units,
+  } = GlobalState;
+
+  const unitTileId = GetTileId(currentSelectedUnitTile);
 
   const unit = units[playerTurn][currentSelectedUnitElement.id];
 
@@ -385,8 +403,8 @@ export function PotentialMovementTiles() {
       let down;
 
       if (i !== 0) {
-        up = currentTileId + -40 * i;
-        down = currentTileId + 40 * i;
+        up = unitTileId + -40 * i;
+        down = unitTileId + 40 * i;
         surroundingTiles.push({ id: up });
         surroundingTiles.push({ id: down });
 
@@ -405,8 +423,8 @@ export function PotentialMovementTiles() {
 
       for (let j = 1; j < rowTiles + 1; j++) {
         if (i === 0) {
-          const left = currentTileId - j;
-          const right = currentTileId + j;
+          const left = unitTileId - j;
+          const right = unitTileId + j;
           surroundingTiles.push({ id: left });
           surroundingTiles.push({ id: right });
 
@@ -456,13 +474,6 @@ export function PotentialMovementTiles() {
         }
       }
     }
-  } else {
-    surroundingTiles = [
-      currentTileId - 1,
-      currentTileId + 1,
-      currentTileId - 40,
-      currentTileId + 40,
-    ];
   }
 
   surroundingTiles = surroundingTiles
