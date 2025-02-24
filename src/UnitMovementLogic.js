@@ -222,6 +222,19 @@ export function TileInMovementRange(targetTile, potentialTiles) {
   });
 }
 
+export function ClickToConfirmMovement(targetTile) {
+  const { path } = GlobalState;
+
+  const lastTileInPath = path[path.length - 1];
+
+  const targetTileId = targetTile.id.split('-')[1];
+
+  if (targetTileId === lastTileInPath.id) {
+    return true;
+  }
+  return false;
+}
+
 function GetShortestRoute(paths = []) {
   let shortestPath = paths[0];
 
