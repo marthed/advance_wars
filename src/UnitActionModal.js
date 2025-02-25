@@ -153,10 +153,44 @@ export function SelectTargetEnemy() {
 
   GlobalState.targetEnemyUnitTile = firstEnemy.tileElement;
 
+  adjacentEnemyTiles.forEach(({ tileElement }) => {
+    tileElement.addEventListener('mousedown', ChangeTargetEnemyTouch);
+  });
+
   if (adjacentEnemyTiles.length > 1) {
     document.addEventListener('keydown', ChangeTargetEnemy);
   } else {
     OpenUnitActionModal();
+  }
+}
+
+function RemoveChangeTargetEnemyEventListeners() {
+  const { adjacentEnemyTiles } = GlobalState;
+
+  adjacentEnemyTiles.forEach(({ tileElement }) => {
+    tileElement.removeEventListener('mousedown', ChangeTargetEnemyTouch);
+  });
+}
+
+export function ChangeTargetEnemyTouch(event) {
+  //const { currentSelectedUnitElement, units, playerTurn } = GlobalState;
+
+  //const unit = units[playerTurn][currentSelectedUnitElement.id];
+
+  console.log(event.target);
+  const enemyTile = event.target;
+
+  if (GlobalState.targetEnemyUnitTile === enemyTile) {
+    document.removeEventListener('keydown', ChangeTargetEnemy);
+    RemoveChangeTargetEnemyEventListeners();
+    OpenUnitActionModal();
+    return;
+  } else {
+    ResetTargetEnemy();
+
+    enemyTile.querySelector('.path').classList.add('path__highlighted--attack'); // Change to image later
+
+    GlobalState.targetEnemyUnitTile = enemyTile;
   }
 }
 
@@ -202,12 +236,14 @@ export function ChangeTargetEnemy() {
 
   if (key === 'Enter') {
     document.removeEventListener('keydown', ChangeTargetEnemy);
+    RemoveChangeTargetEnemyEventListeners();
     OpenUnitActionModal();
     return;
   }
 
   if (key === 'Escape') {
     document.removeEventListener('keydown', ChangeTargetEnemy);
+    RemoveChangeTargetEnemyEventListeners();
 
     adjacentEnemyTiles.forEach(({ tileElement }) => {
       tileElement
