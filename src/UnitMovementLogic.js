@@ -131,6 +131,37 @@ export function ResetPath() {
   GlobalState.path = [];
 }
 
+const TerrainReduction = {
+  tank: {
+    forest: 2,
+  },
+  infantry: {
+    mountain: 1,
+  },
+  rpg: {
+    mountain: 1,
+  },
+  rockets: {
+    field: 1,
+    forest: 3,
+    shore: 2,
+  },
+  battleship: {},
+};
+
+export function GetCurrentUnitMovementReduction(terrainElement) {
+  const { currentSelectedUnitElement, playerTurn } = GlobalState;
+
+  const currentUnit =
+    GlobalState.units[playerTurn][currentSelectedUnitElement.id];
+
+  const terrainType = GetTerrainType(terrainElement);
+
+  const movementReduction = TerrainReduction[currentUnit.type][terrainType];
+
+  return movementReduction ? Number(movementReduction) : 0;
+}
+
 export function ReachedMovementRange() {
   const { currentSelectedUnitElement, path, playerTurn } = GlobalState;
 
@@ -141,34 +172,19 @@ export function ReachedMovementRange() {
     GetTerrainType(tileData.element),
   );
 
-  let reduceField = 0;
-  let reduceForest = 0;
-  let reduceMountain = 0;
-  let reduceShore = 0;
-
   const containsMountain = terrainInPath.some((t) => t === 'mountain');
   const containsForest = terrainInPath.some((t) => t === 'forest');
   const containsField = terrainInPath.some((t) => t === 'field');
   const containsShore = terrainInPath.some((t) => t === 'shore');
 
-  if (currentUnit.type === 'tank') {
-    reduceField = containsField ? 0 : 0;
-    reduceForest = containsForest ? 2 : 0;
-    reduceMountain = containsMountain ? 0 : 0;
-  } else if (currentUnit.type === 'infantry') {
-    reduceField = containsField ? 0 : 0;
-    reduceForest = containsForest ? 0 : 0;
-    reduceMountain = containsMountain ? 1 : 0;
-  } else if (currentUnit.type === 'rpg') {
-    reduceField = containsField ? 0 : 0;
-    reduceForest = containsForest ? 0 : 0;
-    reduceMountain = containsMountain ? 1 : 0;
-  } else if (currentUnit.type === 'rockets') {
-    reduceField = containsField ? 1 : 0;
-    reduceForest = containsForest ? 3 : 0;
-    reduceMountain = containsMountain ? 1 : 0;
-    reduceShore = containsShore ? 2 : 0;
-  }
+  const reduceField =
+    (containsField && TerrainReduction[currentUnit.type]['field']) || 0;
+  const reduceForest =
+    (containsForest && TerrainReduction[currentUnit.type]['forest']) || 0;
+  const reduceMountain =
+    (containsMountain && TerrainReduction[currentUnit.type]['mountain']) || 0;
+  const reduceShore =
+    (containsShore && TerrainReduction[currentUnit.type]['shore']) || 0;
 
   const reduction =
     Number(reduceField) +
@@ -297,7 +313,7 @@ function CreatePathToTarget(tree) {
 }
 
 function CanReachTarget(parent, movements, maxMovement, target) {
-  if (movements === maxMovement) {
+  if (movements >= maxMovement) {
     return false;
   }
   const { tileId, direction } = parent;
@@ -346,13 +362,24 @@ function CanReachTarget(parent, movements, maxMovement, target) {
 
   const [u, d, l, r] = childTiles;
 
-  const nextMovement = movements + 1;
+  const uMove = u
+    ? movements + GetCurrentUnitMovementReduction(u.tileElement) + 1
+    : movements + 1;
+  const dMove = d
+    ? movements + GetCurrentUnitMovementReduction(d.tileElement) + 1
+    : movements + 1;
+  const lMove = l
+    ? movements + GetCurrentUnitMovementReduction(l.tileElement) + 1
+    : movements + 1;
+  const rMove = r
+    ? movements + GetCurrentUnitMovementReduction(r.tileElement) + 1
+    : movements + 1;
 
   return (
-    (u && CanReachTarget(u, nextMovement, maxMovement, target)) ||
-    (d && CanReachTarget(d, nextMovement, maxMovement, target)) ||
-    (l && CanReachTarget(l, nextMovement, maxMovement, target)) ||
-    (r && CanReachTarget(r, nextMovement, maxMovement, target))
+    (u ? CanReachTarget(u, uMove, maxMovement, target) : false) ||
+    (d ? CanReachTarget(d, dMove, maxMovement, target) : false) ||
+    (l ? CanReachTarget(l, lMove, maxMovement, target) : false) ||
+    (r ? CanReachTarget(r, rMove, maxMovement, target) : false)
   );
 }
 
