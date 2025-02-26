@@ -384,7 +384,7 @@ function CanReachTarget(parent, movements, maxMovement, target) {
 }
 
 function BuildTree(parent, movements, maxMovement, target) {
-  if (movements === maxMovement) {
+  if (movements >= maxMovement) {
     return null;
   }
 
@@ -462,10 +462,21 @@ function BuildTree(parent, movements, maxMovement, target) {
       !EnemyUnitBlocking(child.tileElement),
   );
 
+  const terrainReduction = children.map((child) =>
+    GetCurrentUnitMovementReduction(child.tileElement),
+  );
+
   return {
     ...parent,
     children: children
-      .map((child) => BuildTree(child, movements + 1, maxMovement, target))
+      .map((child, index) =>
+        BuildTree(
+          child,
+          movements + 1 + terrainReduction[index],
+          maxMovement,
+          target,
+        ),
+      )
       .filter((child) => child),
   };
 }

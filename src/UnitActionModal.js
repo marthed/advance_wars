@@ -173,11 +173,12 @@ function RemoveChangeTargetEnemyEventListeners() {
 }
 
 export function ChangeTargetEnemyTouch(event) {
-  //const { currentSelectedUnitElement, units, playerTurn } = GlobalState;
+  const { currentSelectedUnitElement, units, playerTurn } = GlobalState;
 
-  //const unit = units[playerTurn][currentSelectedUnitElement.id];
+  const unit = units[playerTurn][currentSelectedUnitElement.id];
 
-  console.log(event.target);
+  // TODO: FIX!!!
+
   const enemyTile = event.target;
 
   if (GlobalState.targetEnemyUnitTile === enemyTile) {
