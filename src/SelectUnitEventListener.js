@@ -7,8 +7,8 @@ import {
   ResetPath,
   AddTileData,
   AddPotentialPath,
-  PotentialMovementTiles,
   RemovePotentialPath,
+  AllPotentialPaths,
 } from './UnitMovementLogic.js';
 import { GetTileId } from './Terrain/Utils.js';
 import { ResetSelectedTile } from './UnitSelectionUtils.js';
@@ -17,7 +17,6 @@ export const SelectUnit = (event) => {
   const { currentSelectedUnitTile } = GlobalState;
 
   if (currentSelectedUnitTile) {
-    console.log('Remove eventlisteners');
     document.removeEventListener('keydown', SelectedUnitEventListener);
     document.removeEventListener('mousedown', SelectedUnitEventListenerTouch);
 
@@ -40,8 +39,9 @@ export const SelectUnit = (event) => {
   const tileData = AddTileData(target, 'start');
   GlobalState.path.push(tileData);
 
-  const potentialMovementTiles = PotentialMovementTiles();
-  console.log('add potential path');
+  AllPotentialPaths();
+
+  const potentialMovementTiles = AllPotentialPaths();
   AddPotentialPath(potentialMovementTiles);
 
   GlobalState.currentSelectedUnitTile

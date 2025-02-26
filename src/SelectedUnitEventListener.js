@@ -13,9 +13,8 @@ import {
   SetPathForAnimation,
   ResetPath,
   ResetPathFromTouch,
-  PotentialMovementTiles,
+  TileIsReachable,
   RemovePotentialPath,
-  TileInMovementRange,
   GeneratePath,
   ClickToConfirmMovement,
 } from './UnitMovementLogic.js';
@@ -111,10 +110,8 @@ export const SelectedUnitEventListenerTouch = async (event) => {
     return;
   }
 
-  const potentialMovementTiles = PotentialMovementTiles();
-
   //Kolla om inom movement range
-  if (!TileInMovementRange(event.target, potentialMovementTiles)) {
+  if (!TileIsReachable(event.target)) {
     console.log('Tile not in movement range of this unity');
     ResetPathFromTouch();
     DeselectUnit();

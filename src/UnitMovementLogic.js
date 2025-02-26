@@ -296,6 +296,66 @@ function CreatePathToTarget(tree) {
   return paths;
 }
 
+function CanReachTarget(parent, movements, maxMovement, target) {
+  if (movements === maxMovement) {
+    return false;
+  }
+  const { tileId, direction } = parent;
+
+  const up = direction !== 'down' ? tileId + -40 : null;
+  const upChildTile = up ? document.getElementById(`tile-${up}`) : null;
+
+  if (up === target) {
+    return true;
+  }
+
+  const down = direction !== 'up' ? tileId + 40 : null;
+  const downChildTile = down ? document.getElementById(`tile-${down}`) : null;
+
+  if (down === target) {
+    return true;
+  }
+
+  const right = direction !== 'left' ? tileId + 1 : null;
+  const rightChildTile = right
+    ? document.getElementById(`tile-${right}`)
+    : null;
+
+  if (right === target) {
+    return true;
+  }
+
+  const left = direction !== 'right' ? tileId - 1 : null;
+  const leftChildTile = left ? document.getElementById(`tile-${left}`) : null;
+
+  if (left === target) {
+    return true;
+  }
+
+  const childTiles = [
+    { tileElement: upChildTile, direction: 'up', tileId: up },
+    { tileElement: downChildTile, direction: 'down', tileId: down },
+    { tileElement: leftChildTile, direction: 'left', tileId: left },
+    { tileElement: rightChildTile, direction: 'right', tileId: right },
+  ].filter(
+    ({ tileElement }) =>
+      tileElement &&
+      CanMoveInTerrain(tileElement) &&
+      !EnemyUnitBlocking(tileElement),
+  );
+
+  const [u, d, l, r] = childTiles;
+
+  const nextMovement = movements + 1;
+
+  return (
+    (u && CanReachTarget(u, nextMovement, maxMovement, target)) ||
+    (d && CanReachTarget(d, nextMovement, maxMovement, target)) ||
+    (l && CanReachTarget(l, nextMovement, maxMovement, target)) ||
+    (r && CanReachTarget(r, nextMovement, maxMovement, target))
+  );
+}
+
 function BuildTree(parent, movements, maxMovement, target) {
   if (movements === maxMovement) {
     return null;
@@ -383,6 +443,14 @@ function BuildTree(parent, movements, maxMovement, target) {
   };
 }
 
+export function TileIsReachable(tileElement) {
+  const { potentialPath } = GlobalState;
+
+  return potentialPath.find((tile) => {
+    return tile.tileElement === tileElement;
+  });
+}
+
 export function AllPotentialPaths() {
   const {
     playerTurn,
@@ -391,34 +459,29 @@ export function AllPotentialPaths() {
     units,
   } = GlobalState;
 
-  const unitTileId = GetTileId(currentSelectedUnitTile);
-
   const unit = units[playerTurn][currentSelectedUnitElement.id];
+
+  const potentialMovementTiles = PotentialMovementTiles();
+
+  const unitTileId = GetTileId(currentSelectedUnitTile);
 
   const root = {
     children: [],
     tileElement: document.getElementById(`tile-${unitTileId}`),
     tileId: unitTileId,
     direction: null,
-    parent: null,
   };
 
-  const potentialMovementTiles = PotentialMovementTiles();
-
-  const reachableTiles = {};
-
-  const allPaths = potentialMovementTiles.map((potentialTile) => {
-    const tree = BuildTree(
+  const allReachableTiles = potentialMovementTiles.filter((potentialTile) =>
+    CanReachTarget(
       root,
       0,
       unit.movementRange,
       GetTileId(potentialTile.tileElement),
-    );
+    ),
+  );
 
-    return tree;
-  });
-
-  console.log(allPaths);
+  return allReachableTiles;
 }
 
 export function GeneratePath(target) {
