@@ -1,5 +1,6 @@
 export let GlobalState = {
   path: [], // TileData for current unit path
+  potentialPath: [],
   currentTileId: null, // number
   currentSelectedUnitTile: null, // element
   currentSelectedUnitElement: null,

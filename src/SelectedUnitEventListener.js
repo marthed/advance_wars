@@ -14,6 +14,7 @@ import {
   ResetPath,
   ResetPathFromTouch,
   PotentialMovementTiles,
+  RemovePotentialPath,
   TileInMovementRange,
   GeneratePath,
   ClickToConfirmMovement,
@@ -44,6 +45,8 @@ export const SelectedUnitEventListenerTouch = async (event) => {
 
     document.removeEventListener('keydown', SelectedUnitEventListener);
     document.removeEventListener('mousedown', SelectedUnitEventListenerTouch);
+
+    RemovePotentialPath();
 
     if (TileIsOccupied(currentTile)) {
       return;
@@ -171,6 +174,7 @@ export const SelectedUnitEventListener = async (event) => {
 
     document.removeEventListener('keydown', SelectedUnitEventListener);
     document.removeEventListener('mousedown', SelectedUnitEventListenerTouch);
+    RemovePotentialPath();
 
     if (TileIsOccupied(currentTile)) {
       return;

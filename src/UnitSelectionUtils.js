@@ -4,7 +4,7 @@ import {
   SelectedUnitEventListenerTouch,
 } from './SelectedUnitEventListener.js';
 import { SelectUnit } from './SelectUnitEventListener.js';
-import { ResetPath } from './UnitMovementLogic.js';
+import { ResetPath, RemovePotentialPath } from './UnitMovementLogic.js';
 export function ResetSelectedTile() {
   GlobalState.currentSelectedUnitTile = null;
   GlobalState.currentTileId = null;
@@ -20,5 +20,6 @@ export function DeselectUnit() {
   );
 
   ResetPath();
+  RemovePotentialPath();
   ResetSelectedTile();
 }

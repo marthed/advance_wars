@@ -38,6 +38,11 @@ export function GenerateSavedTerrain(savedTerrain = []) {
 
     element.appendChild(path);
 
+    const movementRange = document.createElement('div');
+    movementRange.classList.add('movement-range');
+
+    element.appendChild(movementRange);
+
     GlobalState.terrain.htmlMap.appendChild(element);
   }
 }

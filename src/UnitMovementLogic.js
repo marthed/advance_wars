@@ -91,6 +91,24 @@ export function AddPath(key, nextTileElem) {
   nextTileElem.querySelector('.path').classList.add('path__highlighted');
 }
 
+export function AddPotentialPath(tiles) {
+  GlobalState.potentialPath = tiles;
+
+  tiles.forEach((tile) => {
+    tile.tileElement
+      .querySelector('.movement-range')
+      .classList.add('movement-range__highlighted');
+  });
+}
+
+export function RemovePotentialPath() {
+  GlobalState.potentialPath.forEach((tile) => {
+    tile.tileElement
+      .querySelector('.movement-range')
+      .classList.remove('movement-range__highlighted');
+  });
+}
+
 export function SetPathForAnimation() {
   const { path } = GlobalState;
   GlobalState.animation.path = [...path];
@@ -365,6 +383,44 @@ function BuildTree(parent, movements, maxMovement, target) {
   };
 }
 
+export function AllPotentialPaths() {
+  const {
+    playerTurn,
+    currentSelectedUnitTile,
+    currentSelectedUnitElement,
+    units,
+  } = GlobalState;
+
+  const unitTileId = GetTileId(currentSelectedUnitTile);
+
+  const unit = units[playerTurn][currentSelectedUnitElement.id];
+
+  const root = {
+    children: [],
+    tileElement: document.getElementById(`tile-${unitTileId}`),
+    tileId: unitTileId,
+    direction: null,
+    parent: null,
+  };
+
+  const potentialMovementTiles = PotentialMovementTiles();
+
+  const reachableTiles = {};
+
+  const allPaths = potentialMovementTiles.map((potentialTile) => {
+    const tree = BuildTree(
+      root,
+      0,
+      unit.movementRange,
+      GetTileId(potentialTile.tileElement),
+    );
+
+    return tree;
+  });
+
+  console.log(allPaths);
+}
+
 export function GeneratePath(target) {
   const {
     playerTurn,
@@ -394,6 +450,20 @@ export function GeneratePath(target) {
   });
 }
 
+function CanMoveToTile(tileElement) {
+  if (!tileElement) {
+    return false;
+  }
+
+  if (!CanMoveInTerrain(tileElement)) {
+    return false;
+  }
+  if (TileIsOccupied(tileElement)) {
+    return false;
+  }
+  return true;
+}
+
 export function PotentialMovementTiles() {
   const {
     playerTurn,
@@ -418,18 +488,16 @@ export function PotentialMovementTiles() {
       if (i !== 0) {
         up = unitTileId + -40 * i;
         down = unitTileId + 40 * i;
-        surroundingTiles.push({ id: up });
-        surroundingTiles.push({ id: down });
 
-        // const upElem = document.getElementById('tile-' + up);
-        // if (upElem) {
-        //   AddPath('ArrowUp', upElem);
-        // }
+        const upTile = document.getElementById(`tile-${up}`);
+        const downTile = document.getElementById(`tile-${down}`);
 
-        // const downElem = document.getElementById('tile-' + down);
-        // if (downElem) {
-        //   AddPath('ArrowUp', downElem);
-        // }
+        if (CanMoveToTile(upTile)) {
+          surroundingTiles.push({ id: up });
+        }
+        if (CanMoveToTile(downTile)) {
+          surroundingTiles.push({ id: down });
+        }
       }
 
       const rowTiles = movementRange - i;
@@ -438,17 +506,16 @@ export function PotentialMovementTiles() {
         if (i === 0) {
           const left = unitTileId - j;
           const right = unitTileId + j;
-          surroundingTiles.push({ id: left });
-          surroundingTiles.push({ id: right });
 
-          // const leftElem = document.getElementById('tile-' + left);
-          // if (leftElem) {
-          //   AddPath('ArrowUp', leftElem);
-          // }
-          // const rightElem = document.getElementById('tile-' + right);
-          // if (rightElem) {
-          //   AddPath('ArrowUp', rightElem);
-          // }
+          const leftTile = document.getElementById(`tile-${left}`);
+          const rightTile = document.getElementById(`tile-${right}`);
+
+          if (CanMoveToTile(leftTile)) {
+            surroundingTiles.push({ id: left });
+          }
+          if (CanMoveToTile(rightTile)) {
+            surroundingTiles.push({ id: right });
+          }
         } else {
           const upLeft = up - j;
           const upRight = up + j;
@@ -456,34 +523,29 @@ export function PotentialMovementTiles() {
           const downLeft = down - j;
           const downRight = down + j;
 
-          // const upLeftElem = document.getElementById('tile-' + upLeft);
-          // const upRightElem = document.getElementById('tile-' + upRight);
-          // const downLeftElem = document.getElementById('tile-' + downLeft);
-          // const downRightElem = document.getElementById('tile-' + downRight);
+          const upLeftTile = document.getElementById('tile-' + upLeft);
+          const upRightTile = document.getElementById('tile-' + upRight);
+          const downLeftTile = document.getElementById('tile-' + downLeft);
+          const downRightTile = document.getElementById('tile-' + downRight);
 
-          // if (upLeftElem) {
-          //   AddPath('ArrowUp', upLeftElem);
-          // }
-          // if (upRightElem) {
-          //   AddPath('ArrowUp', upRightElem);
-          // }
-          // if (downLeftElem) {
-          //   AddPath('ArrowUp', downLeftElem);
-          // }
-          // if (downRightElem) {
-          //   AddPath('ArrowUp', downRightElem);
-          // }
-
-          surroundingTiles.push({ id: upLeft });
-          surroundingTiles.push({
-            id: upRight,
-          });
-          surroundingTiles.push({
-            id: downLeft,
-          });
-          surroundingTiles.push({
-            id: downRight,
-          });
+          if (CanMoveToTile(upLeftTile)) {
+            surroundingTiles.push({ id: upLeft });
+          }
+          if (CanMoveToTile(upRightTile)) {
+            surroundingTiles.push({
+              id: upRight,
+            });
+          }
+          if (CanMoveToTile(downLeftTile)) {
+            surroundingTiles.push({
+              id: downLeft,
+            });
+          }
+          if (CanMoveToTile(downRightTile)) {
+            surroundingTiles.push({
+              id: downRight,
+            });
+          }
         }
       }
     }
