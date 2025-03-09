@@ -155,11 +155,11 @@ export function SelectTargetEnemy() {
 
   GlobalState.targetEnemyUnitTile = firstEnemy.tileElement;
 
-  adjacentEnemyTiles.forEach(({ tileElement }) => {
-    tileElement.addEventListener('mousedown', ChangeTargetEnemyTouch);
-  });
-
   if (adjacentEnemyTiles.length > 1) {
+    adjacentEnemyTiles.forEach(({ tileElement }) => {
+      tileElement.addEventListener('mousedown', ChangeTargetEnemyTouch);
+    });
+
     document.addEventListener('keydown', ChangeTargetEnemy);
   } else {
     OpenUnitActionModal();
