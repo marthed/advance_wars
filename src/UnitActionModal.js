@@ -22,6 +22,7 @@ export function PreAttack() {
   }
 
   ResetSelectedTile();
+  GlobalState.adjacentEnemyTiles = [];
 }
 
 function NoAttack() {
@@ -34,6 +35,7 @@ function NoAttack() {
     flipped: GlobalState.playerTurn === 2,
   });
   ResetSelectedTile();
+  GlobalState.adjacentEnemyTiles = [];
 }
 let currentIndex = 0;
 let actions = [];
@@ -90,7 +92,7 @@ export function RemoveUnitActionModalEvents() {
   const attack = actions[0];
   const noAttack = actions[1];
 
-  attack.removeEventListener('click', Attack);
+  attack.removeEventListener('click', PreAttack);
   noAttack.removeEventListener('click', NoAttack);
 }
 
@@ -251,6 +253,8 @@ export function ChangeTargetEnemy() {
         .querySelector('.path')
         .classList.remove('path__highlighted--attack'); // Change to image later
     });
+
+    GlobalState.adjacentEnemyTiles = [];
 
     AddUnitElement({
       tile: GlobalState.currentSelectedUnitTile,
