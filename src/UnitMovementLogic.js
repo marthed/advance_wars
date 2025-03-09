@@ -257,11 +257,17 @@ export function TileInMovementRange(targetTile, potentialTiles) {
 }
 
 export function ClickToConfirmMovement(targetTile) {
-  const { path } = GlobalState;
+  const { path, units, playerTurn, currentSelectedUnitElement } = GlobalState;
 
   const lastTileInPath = path[path.length - 1];
 
   const targetTileId = targetTile.id.split('-')[1];
+
+  const unit = units[playerTurn][currentSelectedUnitElement.id];
+
+  if (path.length < 2 && unit.directAttack) {
+    return false;
+  }
 
   if (targetTileId === lastTileInPath.id) {
     return true;
