@@ -54,3 +54,42 @@ export async function RunAnimations(element, animations) {
     await element.animate(animation.keyframes, animation.options).finished;
   }
 }
+
+export async function AnimateExplosion(targetElement) {
+  const explosionElement = document.getElementById('explosion');
+  explosionElement.style.display = 'block';
+
+  const rect = targetElement.getBoundingClientRect();
+
+  explosionElement.style.left = rect.left + window.scrollX + 'px';
+  explosionElement.style.top = rect.top + window.screenY + 'px';
+
+  const frameWidth = 43;
+  const frameHeight = 32;
+  const columns = 3;
+  const totalFrames = 12;
+  let currentFrame = 0;
+
+  const frameTime = async function () {
+    return new Promise((res) => {
+      setTimeout(() => {
+        res();
+      }, 40);
+    });
+  };
+
+  for (let i = 0; i < totalFrames; i++) {
+    await frameTime();
+    const col = currentFrame % columns;
+    const row = Math.floor(currentFrame / columns);
+    //console.log('frame: ' + currentFrame + '  col: ' + col + ' row: ' + row);
+
+    const x = -col * frameWidth;
+    const y = -row * frameHeight;
+
+    explosionElement.style.backgroundPosition = `${x}px ${y}px`;
+
+    currentFrame++;
+  }
+  explosionElement.style.display = 'none';
+}

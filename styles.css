@@ -396,3 +396,14 @@ body {
 .confirm-audio-modal__options > :nth-child(1) {
   margin-right: 12px;
 }
+
+#explosion {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  width: 42px;
+  height: 32px;
+  background-image: url('media/explosion.png');
+  background-size: 128px 128px; /* 4 columns × 128, 3 rows × 128 */
+  image-rendering: pixelated; /* keeps pixel sharpness */
+}

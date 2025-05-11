@@ -5,6 +5,7 @@ import { PlaySound, PlaySounds } from './Audio.js';
 import { GetUnitFromElement } from './UnitUtils.js';
 import { ResetSelectedTile } from './UnitSelectionUtils.js';
 import { GameIsOver, GameOver } from './GameOver.js';
+import { AnimateExplosion } from './UnitAnimation.js';
 
 export function TerrainBonus(terrainType) {
   if (terrainType === 'field') {
@@ -202,6 +203,7 @@ export async function Attack() {
       );
     }
     if (defenceUnit.type === 'tank') {
+      AnimateExplosion(enemyElement);
       PlaySounds([{ type: 'rpg_fire', delay: 0 }]);
       CalculateHitPoints(
         {
@@ -219,6 +221,7 @@ export async function Attack() {
       );
     }
     if (defenceUnit.type === 'battleship') {
+      AnimateExplosion(enemyElement);
       PlaySounds([{ type: 'rpg_fire', delay: 0 }]);
       CalculateHitPoints(
         {
@@ -236,6 +239,7 @@ export async function Attack() {
       );
     }
     if (defenceUnit.type === 'rockets') {
+      AnimateExplosion(enemyElement);
       PlaySounds([{ type: 'rpg_fire', delay: 0 }]);
       CalculateHitPoints(
         {
@@ -255,6 +259,7 @@ export async function Attack() {
   }
 
   if (attackUnit.type === 'tank') {
+    AnimateExplosion(enemyElement);
     if (defenceUnit.type === 'infantry') {
       PlaySounds([{ type: 'tank_fire', delay: 0 }]);
       CalculateHitPoints(
@@ -344,6 +349,7 @@ export async function Attack() {
 
   if (attackUnit.type === 'battleship') {
     PlaySound('battleship_fire');
+    AnimateExplosion(enemyElement);
     if (defenceUnit.type === 'infantry') {
       CalculateHitPoints(
         {
@@ -450,7 +456,7 @@ export async function Attack() {
             },
           ),
         impactDelay,
-      );
+      ).then(() => AnimateExplosion(enemyElement));
     }
     if (defenceUnit.type === 'rpg') {
       await Delay(
@@ -470,7 +476,7 @@ export async function Attack() {
             },
           ),
         impactDelay,
-      );
+      ).then(() => AnimateExplosion(enemyElement));
     }
     if (defenceUnit.type === 'tank') {
       await Delay(
@@ -490,7 +496,7 @@ export async function Attack() {
             },
           ),
         impactDelay,
-      );
+      ).then(() => AnimateExplosion(enemyElement));
     }
     if (defenceUnit.type === 'battleship') {
       await Delay(
@@ -530,7 +536,7 @@ export async function Attack() {
             },
           ),
         impactDelay,
-      );
+      ).then(() => AnimateExplosion(enemyElement));
     }
   }
 
